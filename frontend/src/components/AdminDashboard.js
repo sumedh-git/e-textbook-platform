@@ -37,7 +37,7 @@ function AdminDashboard() {
             <Row className="mt-4">
                 <Col>
                     <Button variant="primary" size="lg" block onClick={() => handleSelection(1)}>
-                        Create Faculty Account
+                        Create a Faculty Account
                     </Button>
                 </Col>
             </Row>
@@ -58,14 +58,14 @@ function AdminDashboard() {
             <Row className="mt-3">
                 <Col>
                     <Button variant="warning" size="lg" block onClick={() => handleSelection(4)}>
-                        Create Active Course
+                        Create New Active Course
                     </Button>
                 </Col>
             </Row>
             <Row className="mt-3">
                 <Col>
                     <Button variant="dark" size="lg" block onClick={() => handleSelection(5)}>
-                        Create Evaluation Course
+                        Create New Evaluation Course
                     </Button>
                 </Col>
             </Row>

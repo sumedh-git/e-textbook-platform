@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function CreateFaculty() {
     const [faculty, setFaculty] = useState({
@@ -7,6 +8,8 @@ function CreateFaculty() {
         email: '',
         password: ''
     });
+
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFaculty({ ...faculty, [e.target.name]: e.target.value });
@@ -28,6 +31,10 @@ function CreateFaculty() {
         }
     };
 
+    const handleGoBack = () => {
+        navigate(-1);  // Navigate back to the previous page
+    };
+
     return (
         <div>
             <h2>Create Faculty Account</h2>
@@ -44,8 +51,9 @@ function CreateFaculty() {
                 <label>Password:</label>
                 <input type="password" name="password" value={faculty.password} onChange={handleChange} required />
                 <br />
-                <button type="submit">Create Faculty</button>
+                <button type="submit">Add User</button>
             </form>
+            <button onClick={handleGoBack} style={{ marginTop: '10px' }}>Go Back</button>
         </div>
     );
 }
