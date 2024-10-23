@@ -57,6 +57,8 @@ def create_user(data, role):
         # Close cursor and connection
         cursor.close()
         connection.close()
+
+
 # Query to check user login and retrieve role
 def get_user_by_credentials(user_id, password):
     connection = get_db_connection()
@@ -98,3 +100,63 @@ def check_student_role(user_id):
     cursor.close()
     connection.close()
     return is_student is not None
+
+def create_etextbook_query(data):
+    title = data.get('title')
+    eTextbookID = data.get('eTextbookID')
+    created_by = data.get('createdBy')
+
+    if not title or not eTextbookID or not created_by:
+        return False, "Missing required fields", None
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Insert the E-textbook into the database
+        cursor.execute("""
+            INSERT INTO ETextbooks (Title, ETextbookID, CreatedBy)
+            VALUES (%s, %s, %s)
+        """, (title, eTextbookID, created_by))
+
+        connection.commit()
+        return True, f" E-textbook created successfully with ID: {eTextbookID}", eTextbookID
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e), None
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def add_chapter(data):
+    chapter_number = data.get('chapterNumber')
+    chapter_title = data.get('chapterTitle')
+    eTextbookID = data.get('eTextbookID')
+    created_by = data.get('createdBy')
+
+    print(chapter_number, chapter_title, eTextbookID, created_by)
+    if not chapter_number or not chapter_title or not eTextbookID or not created_by:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Insert the chapter into the database
+        cursor.execute("""
+            INSERT INTO Chapters (ETextbookID, ChapterNumber, Title, CreatedBy)
+            VALUES (%s, %s, %s, %s)
+        """, (eTextbookID, chapter_number, chapter_title, created_by))
+
+        connection.commit()
+        return True, "Chapter added successfully"
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
