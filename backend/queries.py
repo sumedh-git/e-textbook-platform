@@ -1,5 +1,6 @@
 from config import get_db_connection
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def generate_user_id(first_name, last_name):
     current_month_year = datetime.now().strftime('%m%y')  # Get current month and year (MMYY)
@@ -152,6 +153,24 @@ def add_chapter(data):
 
         connection.commit()
         return True, "Chapter added successfully"
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def change_user_password(user_id, new_password):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Update the password in the Users table
+        cursor.execute("UPDATE Users SET Password = %s WHERE UserID = %s", (new_password, user_id))
+        connection.commit()
+        return True, "Password updated successfully"
     
     except Exception as e:
         connection.rollback()
