@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,17 +37,16 @@ function ChangePassword() {
       if (!response.ok) {
         const errorData = await response.json();
         setErrorMessage(errorData.error || "An error occurred");
-        setSuccessMessage(""); // Clear success message
       } else {
         const data = await response.json();
-        setSuccessMessage(data.message || "Password changed successfully!");
         setErrorMessage(""); // Clear error message
         setCurrentPassword("");
         setNewPassword("");
+        alert("Password changed successfully!");
+        navigate(-1);
       }
     } catch (error) {
       setErrorMessage("An unexpected error occurred.");
-      setSuccessMessage(""); // Clear success message
     }
   };
 
@@ -57,7 +58,6 @@ function ChangePassword() {
       <Card style={{ width: "400px" }} className="p-4">
         <h2 className="text-center mb-4">Change Password</h2>
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-        {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
         <Form onSubmit={handleSubmit}>
           <Form.Group>
