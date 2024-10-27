@@ -195,3 +195,19 @@ def get_active_course(user_id, course_id):
     cursor.close()
     connection.close()
     return course
+
+def get_evaluation_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT CourseID FROM Courses
+        WHERE CourseID = %s AND FacultyID = %s AND Type = "Evaluation"
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course

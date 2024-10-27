@@ -9,6 +9,7 @@ import AddChapter from "./components/AddChapter";
 import FacultyDashboard from "./components/FacultyDashboard";
 import ChangePassword from "./components/ChangePassword";
 import FacultyActiveCourse from "./components/FacultyActiveCourse";
+import FacultyEvaluationCourse from "./components/FacultyEvaluationCourse";
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
         <Route
           path="/faculty/active-course"
           element={<FacultyActiveCourse />}
+        />
+        <Route
+          path="/faculty/evaluation-course"
+          element={<FacultyEvaluationCourse />}
         />
         {/* <Route
           path="/faculty/evaluation-course"
