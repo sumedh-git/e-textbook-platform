@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
@@ -15,6 +17,11 @@ function ChangePassword() {
 
     if (!userID) {
       setErrorMessage("User ID not found. Please log in again.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage("New Password and Confirm Password do not match.");
       return;
     }
 
@@ -50,6 +57,10 @@ function ChangePassword() {
     }
   };
 
+  const handleGoBack = () => {
+    navigate(-1); // Navigate back to the previous page
+  };
+
   return (
     <Container
       className="d-flex justify-content-center align-items-center"
@@ -82,8 +93,27 @@ function ChangePassword() {
             />
           </Form.Group>
 
+          <Form.Group className="mt-3">
+            <Form.Label>Confirm New Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
+
           <Button variant="primary" type="submit" className="mt-4 w-100">
             Change Password
+          </Button>
+
+          <Button
+            variant="secondary"
+            className="mt-3 w-100"
+            onClick={handleGoBack}
+          >
+            Go Back
           </Button>
         </Form>
       </Card>
