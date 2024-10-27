@@ -211,3 +211,19 @@ def get_evaluation_course(user_id, course_id):
     cursor.close()
     connection.close()
     return course
+
+def get_faculty_courses(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT * FROM Courses
+        WHERE FacultyID = %s
+    """
+
+    cursor.execute(query, (user_id,))
+    courses = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return courses

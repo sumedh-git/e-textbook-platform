@@ -10,6 +10,7 @@ import FacultyDashboard from "./components/FacultyDashboard";
 import ChangePassword from "./components/ChangePassword";
 import FacultyActiveCourse from "./components/FacultyActiveCourse";
 import FacultyEvaluationCourse from "./components/FacultyEvaluationCourse";
+import FacultyViewCourses from "./components/FacultyViewCourses";
 
 function App() {
   return (
@@ -31,11 +32,11 @@ function App() {
           path="/faculty/evaluation-course"
           element={<FacultyEvaluationCourse />}
         />
+        <Route path="/faculty/view-courses" element={<FacultyViewCourses />} />
         {/* <Route
           path="/faculty/evaluation-course"
           element={<EvaluationCourse />}
         />
-        <Route path="/faculty/view-courses" element={<ViewCourses />} />
         <Route path="/faculty/change-password" element={<ChangePassword />} /> */}
       </Routes>
     </Router>
