@@ -1,6 +1,5 @@
 from config import get_db_connection
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 
 def generate_user_id(first_name, last_name):
     current_month_year = datetime.now().strftime('%m%y')  # Get current month and year (MMYY)
@@ -179,3 +178,20 @@ def change_user_password(user_id, new_password):
     finally:
         cursor.close()
         connection.close()
+
+def get_active_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT ac.CourseID FROM ActiveCourses ac
+        JOIN Courses c ON ac.CourseID = c.CourseID
+        WHERE ac.CourseID = %s AND c.FacultyID = %s
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course

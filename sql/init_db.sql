@@ -186,7 +186,8 @@ INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, EText
 VALUES 
     ('CS101', 'Database Systems', 'F001', '2024-01-10', '2024-05-15', 'Active', 101),
     ('CS102', 'Software Engineering', 'F001', '2024-01-15', '2024-05-20', 'Active', 102),
-    ('CS103', 'Machine Learning', 'F001', '2024-02-01', '2024-06-01', 'Active', 103);
+    ('CS103', 'Machine Learning', 'F001', '2024-02-01', '2024-06-01', 'Active', 103),
+    ('CS104', 'Machine Learning Foundations', 'F001', '2024-03-01', '2024-07-01', 'Evaluation', 103);
 
 -- Inserting into ActiveCourses
 INSERT INTO ActiveCourses (CourseID, Token, Capacity)

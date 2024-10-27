@@ -8,6 +8,7 @@ import CreateETextbook from "./components/CreateETextbook";
 import AddChapter from "./components/AddChapter";
 import FacultyDashboard from "./components/FacultyDashboard";
 import ChangePassword from "./components/ChangePassword";
+import FacultyActiveCourse from "./components/FacultyActiveCourse";
 
 function App() {
   return (
@@ -21,15 +22,16 @@ function App() {
         <Route path="/admin/add-chapter" element={<AddChapter />} />
         <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
         <Route path="/change-password" element={<ChangePassword />} />
-        {/* <Route path="/faculty/active-course" element={<ActiveCourse />} />
         <Route
+          path="/faculty/active-course"
+          element={<FacultyActiveCourse />}
+        />
+        {/* <Route
           path="/faculty/evaluation-course"
           element={<EvaluationCourse />}
         />
         <Route path="/faculty/view-courses" element={<ViewCourses />} />
         <Route path="/faculty/change-password" element={<ChangePassword />} /> */}
-
-        {/* Add routes for other admin functionalities */}
       </Routes>
     </Router>
   );
