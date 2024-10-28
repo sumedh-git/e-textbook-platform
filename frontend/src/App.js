@@ -10,6 +10,11 @@ import AddSection from './components/AddSection';
 import AddContentBlockSelection from './components/AddContentBlockSelection';
 import AddContentBlock from './components/AddContentBlock';
 import AddActivity from './components/AddActivity';
+import FacultyDashboard from './components/FacultyDashboard'
+import ChangePassword from './components/ChangePassword'
+import FacultyActiveCourse from './components/FacultyActiveCourse'
+import FacultyEvaluationCourse from './components/FacultyEvaluationCourse'
+import FacultyViewCourses from './components/FacultyViewCourses'
 
 function App() {
     return (
@@ -25,8 +30,19 @@ function App() {
                 <Route path="/admin/add-content-block-selection" element={<AddContentBlockSelection />} />
                 <Route path="/admin/add-content-block" element={<AddContentBlock />} />
                 <Route path="/admin/add-activity" element={<AddActivity />} />
-                {/* Add routes for other admin functionalities */}
-            </Routes>
+                <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
+                <Route path="/change-password" element={<ChangePassword />} />
+                <Route
+                path="/faculty/active-course"
+                element={<FacultyActiveCourse />}
+                />
+                <Route
+                path="/faculty/evaluation-course"
+                element={<FacultyEvaluationCourse />}
+                />
+                <Route path="/faculty/view-courses" element={<FacultyViewCourses />} />
+                        {/* Add routes for other admin functionalities */}
+                    </Routes>
         </Router>
     );
 }

@@ -38,5 +38,5 @@ app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(faculty_bp, url_prefix='/api/faculty')
 
 if __name__ == '__main__':
-    execute_sql_script('C:/Users/samli/OneDrive/Desktop/e-textbook-platform/sql/init_db.sql')
+    execute_sql_script('../sql/init_db.sql')
     app.run(debug=True)
