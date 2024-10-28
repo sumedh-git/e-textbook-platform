@@ -16,9 +16,9 @@ def create_faculty():
 @admin_bp.route('/create-etextbook', methods=['POST'])
 def create_etextbook():
     data = request.json
-    success, message, eTextbookID = create_etextbook_query(data)
+    success, message = create_etextbook_query(data)
     if success:
-        return jsonify({"message": message, "eTextbookID": eTextbookID}), 201
+        return jsonify({"message": message}), 201
     else:
         return jsonify({"error": message}), 400
     
@@ -26,18 +26,18 @@ def create_etextbook():
 @admin_bp.route('/add-chapter', methods=['POST'])
 def add_chapter_route():
     data = request.json
-    success, message, chapterID  = add_chapter(data)
+    success, message  = add_chapter(data)
     if success:
-        return jsonify({"message": message, "chapterID": chapterID}), 201
+        return jsonify({"message": message}), 201
     else:
         return jsonify({"error": message}), 400
 
 @admin_bp.route('/add-section', methods=['POST'])
 def add_section_route():
     data = request.json
-    success, message, sectionID  = add_section(data)
+    success, message  = add_section(data)
     if success:
-        return jsonify({"message": message, "sectionID": sectionID}), 201
+        return jsonify({"message": message}), 201
     else:
         return jsonify({"error": message}), 400
     

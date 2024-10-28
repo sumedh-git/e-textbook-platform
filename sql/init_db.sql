@@ -96,7 +96,7 @@ CREATE TABLE Activities (
     BlockID VARCHAR(10),
     CreatedBy VARCHAR(10) NULL,
     IsHidden BOOLEAN DEFAULT FALSE,
-    PRIMARY KEY (ETextbookID, ChapterID, ActivityID, SectionID, BlockID, ActivityID),
+    PRIMARY KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID),
     FOREIGN KEY (ETextbookID, ChapterID, SectionID, BlockID) REFERENCES ContentBlocks(ETextbookID, ChapterID, SectionID, BlockID)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
@@ -140,7 +140,7 @@ CREATE TABLE Courses (
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
     Type VARCHAR(10) CHECK (Type IN ('Active', 'Evaluation')),
-    ETextbookID INT,
+    ETextbookID VARCHAR(10),
 
     FOREIGN KEY (ETextbookID) REFERENCES ETextbooks(ETextbookID)
     ON DELETE SET NULL 
@@ -179,11 +179,11 @@ VALUES ('S001');  -- Jane Doe is a Student
 
 
 -- Inserting into ETextbooks
-INSERT INTO ETextbooks (ETextbookID, CreatedBy, Title)
-VALUES 
-    (101, 'A001', 'Database Management Systems'),
-    (102, 'A001', 'Fundamentals of Software Engineering'),
-    (103, 'A001', 'Fundamentals of Machine Learning');
+-- INSERT INTO ETextbooks (ETextbookID, CreatedBy, Title)
+-- VALUES 
+--     (101, 'A001', 'Database Management Systems'),
+--     (102, 'A001', 'Fundamentals of Software Engineering'),
+--     (103, 'A001', 'Fundamentals of Machine Learning');
 
 -- Inserting into Chapters
 -- INSERT INTO Chapters (ETextbookID, ChapterNumber, Title, CreatedBy)
@@ -223,16 +223,16 @@ VALUES
 --     (10, "Block01", 'Activity', 'ACT0', 'A001', FALSE);
 
 -- Inserting into Courses
-INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, ETextbookID)
-VALUES 
-    ('CS101', 'Database Systems', 'F001', '2024-01-10', '2024-05-15', 'Active', 101),
-    ('CS102', 'Software Engineering', 'F001', '2024-01-15', '2024-05-20', 'Active', 102),
-    ('CS103', 'Machine Learning', 'F001', '2024-02-01', '2024-06-01', 'Active', 103),
-    ('CS104', 'Machine Learning Foundations', 'F001', '2024-03-01', '2024-07-01', 'Evaluation', 103);
+-- INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, ETextbookID)
+-- VALUES 
+--     ('CS101', 'Database Systems', 'F001', '2024-01-10', '2024-05-15', 'Active', 101),
+--     ('CS102', 'Software Engineering', 'F001', '2024-01-15', '2024-05-20', 'Active', 102),
+--     ('CS103', 'Machine Learning', 'F001', '2024-02-01', '2024-06-01', 'Active', 103),
+--     ('CS104', 'Machine Learning Foundations', 'F001', '2024-03-01', '2024-07-01', 'Evaluation', 103);
 
--- Inserting into ActiveCourses
-INSERT INTO ActiveCourses (CourseID, Token, Capacity)
-VALUES 
-    ('CS101', 'A1B2C3D', 30),
-    ('CS102', 'D4E5F6G', 25),
-    ('CS103', 'H7I8J9K', 20);
+-- -- Inserting into ActiveCourses
+-- INSERT INTO ActiveCourses (CourseID, Token, Capacity)
+-- VALUES 
+--     ('CS101', 'A1B2C3D', 30),
+--     ('CS102', 'D4E5F6G', 25),
+--     ('CS103', 'H7I8J9K', 20);

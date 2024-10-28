@@ -107,7 +107,7 @@ def create_etextbook_query(data):
     created_by = data.get('createdBy')
 
     if not title or not eTextbookID or not created_by:
-        return False, "Missing required fields", None
+        return False, "Missing required fields"
 
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -120,24 +120,25 @@ def create_etextbook_query(data):
         """, (title, eTextbookID, created_by))
 
         connection.commit()
-        return True, f" E-textbook created successfully with ID: {eTextbookID}", eTextbookID
+        return True, f" E-textbook created successfully with ID: {eTextbookID}"
 
     except Exception as e:
         connection.rollback()
-        return False, str(e), None
+        return False, str(e)
 
     finally:
         cursor.close()
         connection.close()
 
 def add_chapter(data):
-    chapter_number = data.get('chapterNumber')
+    chapter_id = data.get('chapterID')
     chapter_title = data.get('chapterTitle')
     eTextbookID = data.get('eTextbookID')
     created_by = data.get('createdBy')
 
-    if not chapter_number or not chapter_title or not eTextbookID or not created_by:
-        return False, "Missing required fields", None
+    print(chapter_id, chapter_title, eTextbookID, created_by)
+    if not chapter_id or not chapter_title or not eTextbookID or not created_by:
+        return False, "Missing required fields"
 
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -145,14 +146,13 @@ def add_chapter(data):
     try:
         # Insert the chapter into the database
         cursor.execute("""
-            INSERT INTO Chapters (ETextbookID, ChapterNumber, Title, CreatedBy)
+            INSERT INTO Chapters (ETextbookID, ChapterID, Title, CreatedBy)
             VALUES (%s, %s, %s, %s)
-        """, (eTextbookID, chapter_number, chapter_title, created_by))
+        """, (eTextbookID, chapter_id, chapter_title, created_by))
 
         connection.commit()
-        chapter_id = cursor.lastrowid
         print(chapter_id)
-        return True, "Chapter added successfully", chapter_id
+        return True, f" Chapter added successfully with ID: {chapter_id}"
     
     except Exception as e:
         connection.rollback()
@@ -165,45 +165,12 @@ def add_chapter(data):
 def add_section(data):
     eTextbookID = data.get('eTextbookID')
     chapter_id = data.get('chapterID')
-    section_number = data.get('sectionNumber')
+    section_id = data.get('sectionID')
     section_title = data.get('sectionTitle')
     created_by = data.get('createdBy')
 
-    print(chapter_id, section_number, section_title, created_by, eTextbookID)
-    if not eTextbookID or not chapter_id or not section_number or not section_title or not created_by:
-        return False, "Missing required fields", None
-
-    connection = get_db_connection()
-    cursor = connection.cursor()
-
-    try:
-        cursor.execute("""
-            INSERT INTO Sections (ETextbookID ,ChapterID, SectionNumber, Title, CreatedBy)
-            VALUES (%s, %s, %s, %s)
-        """, (eTextbookID, chapter_id, section_number, section_title, created_by))
-
-
-        connection.commit()
-        section_id = cursor.lastrowid
-        return True, "Section added successfully", section_id
-    
-    except Exception as e:
-        connection.rollback()
-        return False, str(e), None
-    
-    finally:
-        cursor.close()
-        connection.close()
-
-def add_content_block(data):
-    section_id = data.get('sectionID')
-    content_block_number = data.get('contentBlockNumber')
-    content_type = data.get('blockType')  # Either 'Text' or 'Image'
-    content = data.get('content')
-    created_by = data.get('createdBy')
-
-    print(section_id, content_block_number, content_type, content, created_by)
-    if not section_id or not content_block_number or not content_type or not content or not created_by:
+    print(chapter_id, section_id, section_title, created_by, eTextbookID)
+    if not eTextbookID or not chapter_id or not section_id or not section_title or not created_by:
         return False, "Missing required fields"
 
     connection = get_db_connection()
@@ -211,9 +178,43 @@ def add_content_block(data):
 
     try:
         cursor.execute("""
-            INSERT INTO ContentBlocks (SectionID, BlockNumber, BlockType, Content, CreatedBy)
+            INSERT INTO Sections (ETextbookID ,ChapterID, SectionID, Title, CreatedBy)
             VALUES (%s, %s, %s, %s, %s)
-        """, (section_id, content_block_number, content_type, content, created_by))
+        """, (eTextbookID, chapter_id, section_id, section_title, created_by))
+
+
+        connection.commit()
+        section_id = cursor.lastrowid
+        return True, f" Section added successfully with ID: {section_id}"
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def add_content_block(data):
+    eTextbookID = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    content_block_id = data.get('contentBlockID')
+    content_type = data.get('blockType')  # Either 'Text' or 'Image'
+    content = data.get('content')
+    created_by = data.get('createdBy')
+
+    print(eTextbookID, chapter_id, section_id, content_block_id, content_type, content, created_by)
+    if not eTextbookID or not chapter_id or not section_id or not content_block_id or not content_type or not content or not created_by:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO ContentBlocks (eTextbookID, chapterID, SectionID, BlockID, BlockType, Content, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (eTextbookID, chapter_id, section_id, content_block_id, content_type, content, created_by))
 
 
         connection.commit()
