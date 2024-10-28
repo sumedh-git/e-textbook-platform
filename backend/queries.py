@@ -257,3 +257,70 @@ def add_activity(data):
     finally:
         cursor.close()
         connection.close()
+
+def change_user_password(user_id, new_password):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Update the password in the Users table
+        cursor.execute("UPDATE Users SET Password = %s WHERE UserID = %s", (new_password, user_id))
+        connection.commit()
+        return True, "Password updated successfully"
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_active_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT ac.CourseID FROM ActiveCourses ac
+        JOIN Courses c ON ac.CourseID = c.CourseID
+        WHERE ac.CourseID = %s AND c.FacultyID = %s
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course
+
+def get_evaluation_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT CourseID FROM Courses
+        WHERE CourseID = %s AND FacultyID = %s AND Type = "Evaluation"
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course
+
+def get_faculty_courses(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT * FROM Courses
+        WHERE FacultyID = %s
+    """
+
+    cursor.execute(query, (user_id,))
+    courses = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return courses
