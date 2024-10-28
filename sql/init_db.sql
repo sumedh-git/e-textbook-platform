@@ -1,4 +1,7 @@
--- Creating the Users table with common attributes
+SET foreign_key_checks = 0;
+DROP TABLE IF EXISTS Users, Students, Faculties, Admins, Etextbooks, Chapters, Sections, ContentBlocks, Questions, Activities, Answers;
+SET foreign_key_checks = 1;
+
 CREATE TABLE Users (
     UserID VARCHAR(10) PRIMARY KEY,
     FirstName VARCHAR(50) NOT NULL,
@@ -7,7 +10,6 @@ CREATE TABLE Users (
     Password VARCHAR(255) NOT NULL
 );
 
--- Creating the Students table and linking to Users with a foreign key
 CREATE TABLE Students (
     UserID VARCHAR(10) PRIMARY KEY,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -15,7 +17,6 @@ CREATE TABLE Students (
     ON UPDATE CASCADE
 );
 
--- Creating the Faculties table and linking to Users with a foreign key
 CREATE TABLE Faculties (
     UserID VARCHAR(10) PRIMARY KEY,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -23,7 +24,6 @@ CREATE TABLE Faculties (
     ON UPDATE CASCADE
 );
 
--- Creating the Admins table and linking to Users with a foreign key
 CREATE TABLE Admins (
     UserID VARCHAR(10) PRIMARY KEY,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -57,12 +57,16 @@ CREATE TABLE Admins (
 
   CREATE TABLE Sections (
     SectionID INT AUTO_INCREMENT PRIMARY KEY,
+    ETextbookID INT,
     ChapterID INT,
     SectionNumber VARCHAR(10) NOT NULL,
     Title VARCHAR(100) UNIQUE NOT NULL,
     CreatedBy VARCHAR(10),
     IsHidden BOOLEAN DEFAULT FALSE,
-    UNIQUE (ChapterID, SectionNumber),
+    UNIQUE (ETextbookID, ChapterID, SectionNumber),
+    FOREIGN KEY (ETextbookID) REFERENCES ETextbooks(ETextbookID)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
     FOREIGN KEY (ChapterID) REFERENCES Chapters(ChapterID)
     ON DELETE CASCADE 
     ON UPDATE CASCADE,
@@ -73,18 +77,72 @@ CREATE TABLE Admins (
 
 CREATE TABLE ContentBlocks (
     BlockID INT AUTO_INCREMENT PRIMARY KEY,
+    ETextbookID INT,
     SectionID INT,
-    BlockType VARCHAR(5) CHECK (BlockType IN ('Text', 'Image')) NOT NULL,,
+    BlockNumber VARCHAR(10) NOT NULL,
+    BlockType VARCHAR(8) CHECK (BlockType IN ('text', 'image', 'activity')) NOT NULL,
     Content TEXT NOT NULL,
     CreatedBy VARCHAR(10),
     IsHidden BOOLEAN DEFAULT FALSE,
-    UNIQUE (SectionID, BlockID),
+    UNIQUE (ETextbookID, SectionID, BlockNumber),
+    FOREIGN KEY (ETextbookID) REFERENCES ETextbooks(ETextbookID)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
     FOREIGN KEY (SectionID) REFERENCES Sections(SectionID)
     ON DELETE CASCADE 
     ON UPDATE CASCADE,
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
     ON DELETE SET NULL 
     ON UPDATE CASCADE
+);
+
+CREATE TABLE Activities (
+    ActivityID INT AUTO_INCREMENT PRIMARY KEY,   -- Unique identifier for each activity record
+    ETextbookID INT,                             -- Foreign key to associate activity with a textbook
+    SectionID INT,                               -- Foreign key to associate activity with a section
+    BlockID INT,                                 -- Foreign key to the specific content block in the section
+    ActivityNumber VARCHAR(10) NOT NULL,         -- User-defined number to identify the activity
+    CreatedBy VARCHAR(10) NULL,
+    IsHidden BOOLEAN DEFAULT FALSE,
+    UNIQUE (ETextbookID, ActivityNumber, SectionID, BlockID), -- Ensures uniqueness within each section and block
+    FOREIGN KEY (ETextbookID) REFERENCES ETextbooks(ETextbookID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (SectionID) REFERENCES Sections(SectionID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (BlockID) REFERENCES ContentBlocks(BlockID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+);
+
+
+CREATE TABLE Questions (
+    QuestionID INT AUTO_INCREMENT PRIMARY KEY,        -- Unique identifier for each question
+    ActivityID INT,                                   -- Foreign key referencing Activities
+    ETextbookID INT,                                  -- Foreign key referencing ETextbooks
+    SectionID INT,                                    -- Foreign key referencing Sections
+    QuestionNumber VARCHAR(10) NOT NULL,              -- User-defined identifier within each activity
+    QuestionText TEXT NOT NULL,                       -- Content of the question
+    UNIQUE (QuestionNumber, ActivityID, ETextbookID), -- Ensures uniqueness within each textbook's activity
+    FOREIGN KEY (ActivityID, ETextbookID, SectionID) REFERENCES Activities(ActivityID, ETextbookID, SectionID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE Answers (
+    AnswerID INT PRIMARY KEY AUTO_INCREMENT,
+    QuestionID INT,
+    AnswerText VARCHAR(255) NOT NULL,
+    Explanation TEXT,
+    IsCorrect BOOLEAN NOT NULL,
+    FOREIGN KEY (QuestionID) REFERENCES Questions(QuestionID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    UNIQUE (QuestionID, IsCorrect)
 );
 
 
