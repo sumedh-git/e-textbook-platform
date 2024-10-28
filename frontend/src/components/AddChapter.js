@@ -34,10 +34,13 @@ function AddChapter() {
                     })
                 });
 
+                const data = await response.json();
+
                 if (response.ok) {
                     alert('Chapter added successfully!');
+                    const { chapterID } = data;
                     // Redirect to Add New Section page
-                    navigate(`/admin/add-section`, { state: { chapterID: chapter.chapterNumber, eTextbookID } });
+                    navigate(`/admin/add-section`, { state: {eTextbookID, chapterID, chapterTitle: chapter.chapterTitle} });
                 } else {
                     const errorData = await response.json();
                     setError(errorData.error || 'Failed to add chapter');

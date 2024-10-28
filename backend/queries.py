@@ -136,9 +136,8 @@ def add_chapter(data):
     eTextbookID = data.get('eTextbookID')
     created_by = data.get('createdBy')
 
-    print(chapter_number, chapter_title, eTextbookID, created_by)
     if not chapter_number or not chapter_title or not eTextbookID or not created_by:
-        return False, "Missing required fields"
+        return False, "Missing required fields", None
 
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -151,7 +150,74 @@ def add_chapter(data):
         """, (eTextbookID, chapter_number, chapter_title, created_by))
 
         connection.commit()
-        return True, "Chapter added successfully"
+        chapter_id = cursor.lastrowid
+        print(chapter_id)
+        return True, "Chapter added successfully", chapter_id
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e), None
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def add_section(data):
+    eTextbookID = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_number = data.get('sectionNumber')
+    section_title = data.get('sectionTitle')
+    created_by = data.get('createdBy')
+
+    print(chapter_id, section_number, section_title, created_by, eTextbookID)
+    if not eTextbookID or not chapter_id or not section_number or not section_title or not created_by:
+        return False, "Missing required fields", None
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO Sections (ETextbookID ,ChapterID, SectionNumber, Title, CreatedBy)
+            VALUES (%s, %s, %s, %s)
+        """, (eTextbookID, chapter_id, section_number, section_title, created_by))
+
+
+        connection.commit()
+        section_id = cursor.lastrowid
+        return True, "Section added successfully", section_id
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e), None
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def add_content_block(data):
+    section_id = data.get('sectionID')
+    content_block_number = data.get('contentBlockNumber')
+    content_type = data.get('blockType')  # Either 'Text' or 'Image'
+    content = data.get('content')
+    created_by = data.get('createdBy')
+
+    print(section_id, content_block_number, content_type, content, created_by)
+    if not section_id or not content_block_number or not content_type or not content or not created_by:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO ContentBlocks (SectionID, BlockNumber, BlockType, Content, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (section_id, content_block_number, content_type, content, created_by))
+
+
+        connection.commit()
+        return True, "Section added successfully"
     
     except Exception as e:
         connection.rollback()
@@ -160,3 +226,101 @@ def add_chapter(data):
     finally:
         cursor.close()
         connection.close()
+
+def add_activity(data):
+    section_id = data.get('sectionID')
+    content_block_id = data.get('contentBlockID')
+    activity_id = data.get('activityID')
+    created_by = data.get('createdBy')
+
+    print(section_id, content_block_id, activity_id, created_by)
+    if not section_id or not content_block_id or not activity_id or not created_by:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO ContentBlocks (SectionID, BlockNumber, BlockType, Content, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (section_id, content_block_number, content_type, content, created_by))
+
+
+        connection.commit()
+        return True, "Section added successfully"
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def change_user_password(user_id, new_password):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Update the password in the Users table
+        cursor.execute("UPDATE Users SET Password = %s WHERE UserID = %s", (new_password, user_id))
+        connection.commit()
+        return True, "Password updated successfully"
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_active_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT ac.CourseID FROM ActiveCourses ac
+        JOIN Courses c ON ac.CourseID = c.CourseID
+        WHERE ac.CourseID = %s AND c.FacultyID = %s
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course
+
+def get_evaluation_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT CourseID FROM Courses
+        WHERE CourseID = %s AND FacultyID = %s AND Type = "Evaluation"
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course
+
+def get_faculty_courses(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT * FROM Courses
+        WHERE FacultyID = %s
+    """
+
+    cursor.execute(query, (user_id,))
+    courses = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return courses
