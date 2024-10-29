@@ -1,6 +1,6 @@
 # backend/routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from queries import get_active_course, get_evaluation_course, get_faculty_courses
+from queries import get_faculty_active_course, get_evaluation_course, get_faculty_courses
 
 faculty_bp = Blueprint('faculty', __name__)
 
@@ -13,7 +13,7 @@ def go_to_active_course():
     if not user_id or not course_id:
         return jsonify({"error": "User ID and Course ID are required"}), 400
 
-    course = get_active_course(user_id, course_id)
+    course = get_faculty_active_course(user_id, course_id)
 
     if course:
         return jsonify({"message": "Valid Course ID"}), 200

@@ -1,6 +1,6 @@
 # backend/routes/auth_routes.py
 from flask import Blueprint, request, jsonify
-from queries import get_user_by_credentials,check_admin_role, check_faculty_role, check_student_role, change_user_password
+from queries import get_user_by_credentials,check_admin_role, check_faculty_role, check_student_role, check_ta_role, change_user_password
 from utils.validation import validate_login_input
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -26,6 +26,8 @@ def login():
         is_valid_role = check_faculty_role(user['UserID'])
     elif role == "Student":
         is_valid_role = check_student_role(user['UserID'])
+    elif role == "Ta":
+        is_valid_role = check_ta_role(user['UserID'])
     else:
         return jsonify({"error": "Invalid role"}), 403
 
