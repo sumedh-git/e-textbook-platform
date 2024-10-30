@@ -1,5 +1,5 @@
 SET foreign_key_checks = 0;
-DROP TABLE IF EXISTS Users, Students, Faculties, Admins, TAs, Etextbooks, Chapters, Sections, ContentBlocks, Questions, Activities, Answers, Courses, ActiveCourses;
+DROP TABLE IF EXISTS Users, Students, Faculties, Admins, TAs, Etextbooks, Chapters, Sections, ContentBlocks, Questions, Activities, Answers, Courses, ActiveCourses, Enrollments;
 SET foreign_key_checks = 1;
 
 CREATE TABLE Users (
@@ -170,12 +170,28 @@ CREATE TABLE ActiveCourses (
     ON UPDATE CASCADE
 );
 
+CREATE TABLE Enrollments (
+    StudentID VARCHAR(10),
+    CourseID VARCHAR(20),
+    WaitlistNumber INT,
+    EnrollmentStatus ENUM('Pending', 'Approved', 'Denied'),
+    PRIMARY KEY (StudentID, CourseID),
+
+    FOREIGN KEY (StudentID) REFERENCES Students(UserID)
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE,
+    FOREIGN KEY (CourseID) REFERENCES ActiveCourses(CourseID)
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+);
+
 -- CREATE Statements done
 
 INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
 VALUES ('A001', 'Alice', 'Smith', 'alice@example.com', 'password123'),
        ('F001', 'John', 'Doe', 'john.doe@example.com', 'password123'),
        ('S001', 'Jane', 'Doe', 'jane.doe@example.com', 'password123'),
+       ('S002', 'Ross', 'Geller', 'ross.geller@example.com', 'password123'),
        ('T001', 'Mike', 'Johnson', 'mike.j@example.com', 'password123');
 
 INSERT INTO Admins (UserID)
@@ -185,7 +201,7 @@ INSERT INTO Faculties (UserID)
 VALUES ('F001');  -- John Doe is a Faculty member
 
 INSERT INTO Students (UserID)
-VALUES ('S001');  -- Jane Doe is a Student
+VALUES ('S001'), ("S002");  -- Jane Doe is a Student
 
 INSERT INTO TAs (UserID)
 VALUES ('T001');  -- Mike Johnson is a Student
@@ -248,3 +264,11 @@ VALUES
     ('CS101', 'A1B2C3D', 30),
     ('CS102', 'D4E5F6G', 25),
     ('CS103', 'H7I8J9K', 20);
+
+INSERT INTO Enrollments (StudentID, CourseID, WaitlistNumber, EnrollmentStatus)
+VALUES 
+    ('S001', 'CS101', NULL, 'Approved'),
+    ('S001', 'CS102', NULL, 'Approved'),
+    ('S002', 'CS101', NULL, 'Approved'),
+    ('S002', 'CS103', 1, 'Pending'),
+    ('S001', 'CS103', NULL, 'Denied');

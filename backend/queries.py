@@ -366,3 +366,32 @@ def get_ta_active_course(user_id, course_id):
     cursor.close()
     connection.close()
     return course
+
+
+def get_students_from_course(course_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+        SELECT 
+            e.StudentID, 
+            u.FirstName, 
+            u.LastName
+        FROM 
+            Enrollments e
+        JOIN 
+            Students s ON e.StudentID = s.UserID
+        JOIN 
+            Users u ON s.UserID = u.UserID
+        WHERE 
+            e.CourseID = %s;
+    """
+
+    cursor.execute(query, (course_id,))
+    students = cursor.fetchall()
+    print(students)
+
+    cursor.close()
+    connection.close()
+    return students
