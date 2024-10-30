@@ -19,6 +19,7 @@ import TADashboard from "./components/TADashboard";
 import TAViewCourses from "./components/TAViewCourses";
 import TAActiveCourse from "./components/TAActiveCourse";
 import TAViewStudents from "./components/TAViewStudents";
+import FacultyViewStudents from "./components/FacultyViewStudents";
 
 function App() {
   return (
@@ -49,6 +50,10 @@ function App() {
           element={<FacultyEvaluationCourse />}
         />
         <Route path="/faculty/view-courses" element={<FacultyViewCourses />} />
+        <Route
+          path="/faculty/view-students"
+          element={<FacultyViewStudents />}
+        />
 
         <Route path="/dashboard/ta" element={<TADashboard />} />
         <Route path="/ta/view-courses" element={<TAViewCourses />} />

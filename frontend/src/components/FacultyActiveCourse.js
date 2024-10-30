@@ -53,6 +53,9 @@ function FacultyActiveCourse() {
     // Add your logic for each menu action
     console.log(`Action selected: ${action}`);
     // For example, navigate to a different route based on action
+    if (action === "View Students") {
+      navigate("/faculty/view-students"); // Navigate to TAViewStudents component
+    }
   };
 
   const handleGoBack = () => {

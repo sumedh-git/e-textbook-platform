@@ -1,6 +1,6 @@
 # backend/routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from queries import get_faculty_active_course, get_evaluation_course, get_faculty_courses
+from queries import get_faculty_active_course, get_evaluation_course, get_faculty_courses, get_students_from_course
 
 faculty_bp = Blueprint('faculty', __name__)
 
@@ -53,3 +53,18 @@ def view_courses():
 
     # Return the list of courses as a JSON response
     return jsonify(courses), 200
+
+@faculty_bp.route("/view-students", methods=["POST"])
+def view_students():
+    data = request.get_json()
+    course_id = data.get('course_id')
+
+    if not course_id:
+        return jsonify({"error": "No such Active Course"}), 400
+    
+    students = get_students_from_course(course_id)
+
+    if not students:
+        return jsonify({"message": "No students enrolled for this course"}), 404
+    
+    return jsonify(students), 200
