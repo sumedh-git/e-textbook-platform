@@ -1,55 +1,53 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-function AddContentBlock() {
+function ModifyContentBlock() {
     const location = useLocation();
-    const {eTextbookID, chapterID, sectionID, sectionTitle, contentBlockID, type } = location.state || {};
+    const navigate = useNavigate();
+    const { eTextbookID, chapterID, sectionID, contentBlockID, type } = location.state || {};
     const [contentData, setContentData] = useState('');
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
     const userID = localStorage.getItem('userID');
 
     const handleSubmit = async () => {
         if (!contentData) {
-            setError('Please enter content.');
+            setError("Content cannot be empty.");
             return;
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin/add-content-block', {
-                method: 'POST',
+            const response = await fetch('http://localhost:5000/api/admin/modify-content-block', {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    eTextbookID: eTextbookID,
-                    chapterID: chapterID,
-                    sectionID: sectionID,
-                    contentBlockID: contentBlockID,
-                    content: contentData,
-                    blockType: type,
-                    createdBy: userID
+                    eTextbookID,
+                    chapterID,
+                    sectionID,
+                    contentBlockID,
+                    contentData,
+                    type,
+                    updatedBy : userID
                 })
             });
-
-            const data = await response.json();
             if (response.ok) {
-                alert(`${type} content added successfully!`);
-                navigate(-1); // Go back to the selection page
+                alert('Content block modified successfully!');
+                navigate(-1); // Go back to ModifyContentBlock
             } else {
-                setError(data.error || 'Failed to add content block');
+                const data = await response.json();
+                setError(data.error || 'Failed to update content block.');
             }
         } catch (error) {
-            console.error("Error:", error);
-            setError('An error occurred while adding content block');
+            setError('An error occurred while updating content.');
         }
     };
 
     return (
         <div>
-            <h2>Add New {type} Content Block to Section {sectionTitle}</h2>
+            <h2>{type === 'text' ? 'Add Text' : 'Add Picture'}</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form>
-                <label>Content Block ID: {contentBlockID}</label>
+            <form onSubmit={(e) => e.preventDefault()}>
+            <label>Content Block ID: {contentBlockID}</label>
                 <br />
 
                 <label>{type === 'text' ? "Text Content" : "Picture Name"}</label>
@@ -69,4 +67,4 @@ function AddContentBlock() {
     );
 }
 
-export default AddContentBlock;
+export default ModifyContentBlock;

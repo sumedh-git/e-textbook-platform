@@ -199,7 +199,7 @@ def add_content_block(data):
     chapter_id = data.get('chapterID')
     section_id = data.get('sectionID')
     content_block_id = data.get('contentBlockID')
-    content_type = data.get('blockType')  # Either 'Text' or 'Image'
+    content_type = data.get('blockType')
     content = data.get('content')
     created_by = data.get('createdBy')
 
@@ -218,7 +218,7 @@ def add_content_block(data):
 
 
         connection.commit()
-        return True, "Section added successfully"
+        return True, f"Content Block added successfully with ID: {content_block_id}"
     
     except Exception as e:
         connection.rollback()
@@ -229,32 +229,82 @@ def add_content_block(data):
         connection.close()
 
 def add_activity(data):
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
     section_id = data.get('sectionID')
     content_block_id = data.get('contentBlockID')
     activity_id = data.get('activityID')
     created_by = data.get('createdBy')
 
-    print(section_id, content_block_id, activity_id, created_by)
-    if not section_id or not content_block_id or not activity_id or not created_by:
+    print(etextbook_id, chapter_id, section_id, content_block_id, activity_id, created_by)
+    if not etextbook_id or not chapter_id or not section_id or not content_block_id or not activity_id or not created_by:
         return False, "Missing required fields"
-
+    
     connection = get_db_connection()
     cursor = connection.cursor()
 
     try:
-        cursor.execute("""
-            INSERT INTO ContentBlocks (SectionID, BlockNumber, BlockType, Content, CreatedBy)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (section_id, content_block_number, content_type, content, created_by))
-
-
+        query = """
+            INSERT INTO Activities (ActivityID, ETextbookID, ChapterID, SectionID, BlockID, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (activity_id, etextbook_id, chapter_id, section_id, content_block_id, created_by))
         connection.commit()
-        return True, "Section added successfully"
-    
+        return True, "Activity added successfully"
     except Exception as e:
         connection.rollback()
         return False, str(e)
+    finally:
+        cursor.close()
+        connection.close()
+
+def add_question(data):
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    content_block_id = data.get('contentBlockID')
+    activity_id = data.get('activityID')
+    question_id = data.get('questionID')
+    question_text = data.get('questionText')
+    options = data.get('options')  # Dictionary with options 1-4 and explanations
+    answer_idx = data.get('answerIdx')  # Integer index for correct answer
+    created_by = data.get('createdBy')
+
+    print(etextbook_id, chapter_id, section_id, content_block_id, activity_id, question_id, question_text, options, answer_idx, created_by)
+    if not etextbook_id or not chapter_id or not section_id or not content_block_id or not activity_id or not question_id or not question_text or not options or not answer_idx or not created_by:
+        return False, "Missing required fields"
     
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Insert Question with Options and Correct Answer Index
+        query = """
+            INSERT INTO Questions (
+                QuestionID, ETextbookID, ChapterID, SectionID, BlockID, ActivityID,
+                QuestionText, Option1, Option1Explanation, Option2, Option2Explanation,
+                Option3, Option3Explanation, Option4, Option4Explanation, AnswerIdx, CreatedBy
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        # Extract option details from the options array
+        option_values = [
+            options[0]['text'], options[0]['explanation'],
+            options[1]['text'], options[1]['explanation'],
+            options[2]['text'], options[2]['explanation'],
+            options[3]['text'], options[3]['explanation']
+        ]
+
+        cursor.execute(query, (
+            question_id, etextbook_id, chapter_id, section_id, content_block_id, activity_id, 
+            question_text, *option_values, answer_idx, created_by
+        ))
+        
+        connection.commit()
+        return True, "Question added successfully"
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
     finally:
         cursor.close()
         connection.close()
@@ -325,3 +375,163 @@ def get_faculty_courses(user_id):
     cursor.close()
     connection.close()
     return courses
+
+def check_etextbook_exists(eTextbookID):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(*) FROM ETextbooks WHERE ETextbookID = %s", (eTextbookID,))
+    exists = cursor.fetchone()[0] > 0
+    cursor.close()
+    connection.close()
+    return exists
+
+def check_chapter_exists(eTextbookID, chapterID):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(*) FROM Chapters WHERE ETextbookID = %s AND ChapterID = %s", (eTextbookID, chapterID))
+    exists = cursor.fetchone()[0] > 0
+    cursor.close()
+    connection.close()
+    return exists
+
+def check_section_exists(etextbook_id, chapter_id, section_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM Sections 
+        WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s
+    """, (etextbook_id, chapter_id, section_id))
+    exists = cursor.fetchone()[0] > 0
+    cursor.close()
+    connection.close()
+    return exists
+
+def check_content_block_exists(etextbook_id, chapter_id, section_id, content_block_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM ContentBlocks
+        WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+    """, (etextbook_id, chapter_id, section_id, content_block_id))
+    exists = cursor.fetchone()[0] > 0
+    print("value of exists:",exists)
+    cursor.close()
+    connection.close()
+    return exists
+
+def modify_content_block(data):
+    eTextbookID = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    content_block_id = data.get('contentBlockID')
+    new_content_type = data.get('type')  # Assume this is the new type to update
+    new_content = data.get('contentData')  # Assume this is the new content to update
+    updated_by = data.get('updatedBy')  # User updating the content block
+
+    print(eTextbookID, chapter_id, section_id, content_block_id, new_content_type, new_content, updated_by)
+    # Check that all necessary fields are present
+    if not all([eTextbookID, chapter_id, section_id, content_block_id, new_content_type, new_content, updated_by]):
+        return False, "Missing required fields"
+
+    # Execute the query
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            DELETE FROM ContentBlocks
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+        """, (eTextbookID, chapter_id, section_id, content_block_id))
+
+        # Reinsert the content block with updated type and content
+        cursor.execute("""
+            INSERT INTO ContentBlocks (ETextbookID, ChapterID, SectionID, BlockID, BlockType, Content, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (eTextbookID, chapter_id, section_id, content_block_id, new_content_type, new_content, updated_by))
+
+        connection.commit()
+
+        connection.commit()
+        return True, f"Content Block {content_block_id} modified successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def modify_question(data):
+    eTextbookID = data.get('eTextbookID')
+    chapterID = data.get('chapterID')
+    sectionID = data.get('sectionID')
+    blockID = data.get('contentBlockID')
+    activityID = data.get('activityID')
+    questionID = data.get('questionID')
+    questionText = data.get('questionText')
+    options = data.get('options')
+    answerIdx = data.get('answerIdx')
+    createdBy = data.get('createdBy')
+
+    # Ensure all necessary fields are present
+    if not all([eTextbookID, chapterID, sectionID, blockID, activityID, questionID, questionText, options, answerIdx, createdBy]):
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Step 1: Delete the existing content block (cascading deletion of activity and question)
+        cursor.execute("""
+            DELETE FROM ContentBlocks 
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+        """, (eTextbookID, chapterID, sectionID, blockID))
+
+        # Step 2: Insert the new content block with block type 'activity' and content as activityID
+        cursor.execute("""
+            INSERT INTO ContentBlocks (BlockID, ETextbookID, ChapterID, SectionID, BlockType, Content, CreatedBy)
+            VALUES (%s, %s, %s, %s, 'activity', %s, %s)
+        """, (blockID, eTextbookID, chapterID, sectionID, activityID, createdBy))
+
+        # Step 3: Insert or update the associated activity and question
+        cursor.execute("""
+            INSERT INTO Activities (ActivityID, ETextbookID, ChapterID, SectionID, BlockID, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE ActivityID = VALUES(ActivityID)
+        """, (activityID, eTextbookID, chapterID, sectionID, blockID, createdBy))
+
+        # Insert or update the question
+        cursor.execute("""
+            INSERT INTO Questions (QuestionID, ETextbookID, ChapterID, SectionID, BlockID, ActivityID, QuestionText,
+                Option1, Option1Explanation, Option2, Option2Explanation, Option3, Option3Explanation, 
+                Option4, Option4Explanation, AnswerIdx, CreatedBy)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                QuestionText = VALUES(QuestionText),
+                Option1 = VALUES(Option1), Option1Explanation = VALUES(Option1Explanation),
+                Option2 = VALUES(Option2), Option2Explanation = VALUES(Option2Explanation),
+                Option3 = VALUES(Option3), Option3Explanation = VALUES(Option3Explanation),
+                Option4 = VALUES(Option4), Option4Explanation = VALUES(Option4Explanation),
+                AnswerIdx = VALUES(AnswerIdx),
+                CreatedBy = VALUES(CreatedBy)
+        """, (
+            questionID, eTextbookID, chapterID, sectionID, blockID, activityID, questionText,
+            options[0]['text'], options[0]['explanation'],
+            options[1]['text'], options[1]['explanation'], options[2]['text'],
+            options[2]['explanation'], options[3]['text'], options[3]['explanation'],
+            answerIdx, createdBy
+        ))
+
+        connection.commit()
+        return True, "Question and activity modified successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
