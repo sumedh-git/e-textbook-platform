@@ -24,6 +24,11 @@ import ModifyContentBlockSelection from './components/ModifyContentBlockSelectio
 import ModifyContentBlock from './components/ModifyContentBlock';
 import ModifyActivity from './components/ModifyActivity';
 import ModifyQuestion from './components/ModifyQuestion';
+import TADashboard from "./components/TADashboard";
+import TAViewCourses from "./components/TAViewCourses";
+import TAActiveCourse from "./components/TAActiveCourse";
+import TAViewStudents from "./components/TAViewStudents";
+import FacultyViewStudents from "./components/FacultyViewStudents";
 
 function App() {
     return (
@@ -58,8 +63,13 @@ function App() {
                 element={<FacultyEvaluationCourse />}
                 />
                 <Route path="/faculty/view-courses" element={<FacultyViewCourses />} />
-                        {/* Add routes for other admin functionalities */}
-                    </Routes>
+                <Route path="/faculty/view-students" element={<FacultyViewStudents />} />
+
+                <Route path="/dashboard/ta" element={<TADashboard />} />
+                <Route path="/ta/view-courses" element={<TAViewCourses />} />
+                <Route path="/ta/active-course" element={<TAActiveCourse />} />
+                <Route path="/ta/view-students" element={<TAViewStudents />} />
+          </Routes>
         </Router>
     );
 }

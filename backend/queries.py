@@ -101,6 +101,15 @@ def check_student_role(user_id):
     connection.close()
     return is_student is not None
 
+def check_ta_role(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT UserID FROM TAs WHERE UserID = %s", (user_id,))
+    is_student = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return is_student is not None
+
 def create_etextbook_query(data):
     title = data.get('title')
     eTextbookID = data.get('eTextbookID')
@@ -327,7 +336,7 @@ def change_user_password(user_id, new_password):
         cursor.close()
         connection.close()
 
-def get_active_course(user_id, course_id):
+def get_faculty_active_course(user_id, course_id):
     connection = get_db_connection()
     cursor = connection.cursor()
     
@@ -375,6 +384,69 @@ def get_faculty_courses(user_id):
     cursor.close()
     connection.close()
     return courses
+
+
+def get_ta_courses(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT * FROM Courses
+        WHERE TAID = %s
+    """
+
+    cursor.execute(query, (user_id,))
+    courses = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return courses
+
+def get_ta_active_course(user_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT ac.CourseID FROM ActiveCourses ac
+        JOIN Courses c ON ac.CourseID = c.CourseID
+        WHERE ac.CourseID = %s AND c.TAID = %s
+    """
+
+    cursor.execute(query, (course_id, user_id))
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return course
+
+
+def get_students_from_course(course_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+        SELECT 
+            e.StudentID, 
+            u.FirstName, 
+            u.LastName
+        FROM 
+            Enrollments e
+        JOIN 
+            Students s ON e.StudentID = s.UserID
+        JOIN 
+            Users u ON s.UserID = u.UserID
+        WHERE 
+            e.CourseID = %s;
+    """
+
+    cursor.execute(query, (course_id,))
+    students = cursor.fetchall()
+    print(students)
+
+    cursor.close()
+    connection.close()
+    return students
 
 def check_etextbook_exists(eTextbookID):
     connection = get_db_connection()
