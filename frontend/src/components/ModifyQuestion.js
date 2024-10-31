@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-function AddQuestion() {
+function ModifyQuestion() {
     const location = useLocation();
     const navigate = useNavigate();
     const { eTextbookID, chapterID, sectionID, contentBlockID, activityID } = location.state || {};
@@ -37,7 +37,7 @@ function AddQuestion() {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin/add-question', {
+            const response = await fetch('http://localhost:5000/api/admin/modify-question', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -132,4 +132,4 @@ function AddQuestion() {
     );
 }
 
-export default AddQuestion;
+export default ModifyQuestion;

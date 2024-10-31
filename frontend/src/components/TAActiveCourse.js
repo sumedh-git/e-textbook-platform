@@ -9,7 +9,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-function FacultyActiveCourse() {
+function TAActiveCourse() {
   const [courseID, setCourseID] = useState("");
   const [isCourseEntered, setIsCourseEntered] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -21,7 +21,7 @@ function FacultyActiveCourse() {
     if (courseID.trim()) {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/faculty/go-to-active-course",
+          "http://localhost:5000/api/ta/go-to-active-course",
           {
             method: "POST",
             headers: {
@@ -54,7 +54,7 @@ function FacultyActiveCourse() {
     console.log(`Action selected: ${action}`);
     // For example, navigate to a different route based on action
     if (action === "View Students") {
-      navigate("/faculty/view-students"); // Navigate to TAViewStudents component
+      navigate("/ta/view-students"); // Navigate to TAViewStudents component
     }
   };
 
@@ -68,7 +68,7 @@ function FacultyActiveCourse() {
       style={{ minHeight: "100vh" }}
     >
       <Card style={{ width: "400px" }} className="p-4">
-        <h2 className="text-center mb-4">Faculty: Active Course</h2>
+        <h2 className="text-center mb-4">TA: Active Course</h2>
 
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
 
@@ -101,39 +101,24 @@ function FacultyActiveCourse() {
           <ListGroup className="mt-3">
             <ListGroup.Item
               action
-              onClick={() => handleMenuAction("View Worklist")}
-            >
-              1. View Worklist
-            </ListGroup.Item>
-            <ListGroup.Item
-              action
-              onClick={() => handleMenuAction("Approve Enrollment")}
-            >
-              2. Approve Enrollment
-            </ListGroup.Item>
-            <ListGroup.Item
-              action
               onClick={() => handleMenuAction("View Students")}
             >
-              3. View Students
+              1. View Students
             </ListGroup.Item>
             <ListGroup.Item
               action
               onClick={() => handleMenuAction("Add New Chapter")}
             >
-              4. Add New Chapter
+              2. Add New Chapter
             </ListGroup.Item>
             <ListGroup.Item
               action
               onClick={() => handleMenuAction("Modify Chapters")}
             >
-              5. Modify Chapters
-            </ListGroup.Item>
-            <ListGroup.Item action onClick={() => handleMenuAction("Add TA")}>
-              6. Add TA
+              3. Modify Chapters
             </ListGroup.Item>
             <ListGroup.Item action onClick={handleGoBack}>
-              7. Go Back
+              4. Go Back
             </ListGroup.Item>
           </ListGroup>
         )}
@@ -142,4 +127,4 @@ function FacultyActiveCourse() {
   );
 }
 
-export default FacultyActiveCourse;
+export default TAActiveCourse;
