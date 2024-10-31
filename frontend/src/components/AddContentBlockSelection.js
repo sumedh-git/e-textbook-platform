@@ -2,21 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 function AddContentBlockSelection() {
-    const [contentBlockNumber, setContentBlockNumber] = useState('');
+    const [contentBlockID, setContentBlockID] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { sectionID, sectionTitle } = location.state || {};
+    const {eTextbookID, chapterID, sectionID, sectionTitle } = location.state || {};
 
     const handleOptionSelection = (type) => {
-        if (!contentBlockNumber) {
+        if (!contentBlockID) {
             alert('Please enter Content Block ID');
             return;
         }
 
         if (type === 'activity') {
-            navigate('/admin/add-activity', { state: { sectionID, sectionTitle, contentBlockNumber } });
+            navigate('/admin/add-activity', { state: {eTextbookID, chapterID, sectionID, sectionTitle, contentBlockID } });
         } else {
-            navigate('/admin/add-content-block', { state: { sectionID, sectionTitle, contentBlockNumber, type } });
+            navigate('/admin/add-content-block', { state: {eTextbookID, chapterID, sectionID, sectionTitle, contentBlockID, type } });
         }
     };
 
@@ -26,8 +26,8 @@ function AddContentBlockSelection() {
             <label>Content Block ID:</label>
             <input
                 type="text"
-                value={contentBlockNumber}
-                onChange={(e) => setContentBlockNumber(e.target.value)}
+                value={contentBlockID}
+                onChange={(e) => setContentBlockID(e.target.value)}
                 required
             />
             <h3>Select Content Type</h3>

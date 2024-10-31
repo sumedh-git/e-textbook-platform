@@ -5,7 +5,7 @@ function AddChapter() {
     const location = useLocation();
     const { eTextbookID, title } = location.state;
     const [chapter, setChapter] = useState({
-        chapterNumber: '',
+        chapterID: '',
         chapterTitle: ''
     });
     const [error, setError] = useState(null);
@@ -27,20 +27,16 @@ function AddChapter() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        chapterNumber: chapter.chapterNumber,
+                        chapterID: chapter.chapterID,
                         chapterTitle: chapter.chapterTitle,
                         eTextbookID: eTextbookID,
                         createdBy: userID
                     })
                 });
 
-                const data = await response.json();
-
                 if (response.ok) {
                     alert('Chapter added successfully!');
-                    const { chapterID } = data;
-                    // Redirect to Add New Section page
-                    navigate(`/admin/add-section`, { state: {eTextbookID, chapterID, chapterTitle: chapter.chapterTitle} });
+                    navigate(`/admin/add-section`, { state: {eTextbookID: eTextbookID, chapterID: chapter.chapterID, chapterTitle: chapter.chapterTitle} });
                 } else {
                     const errorData = await response.json();
                     setError(errorData.error || 'Failed to add chapter');
@@ -65,7 +61,7 @@ function AddChapter() {
                 <label>Unique Chapter ID:</label>
                 <input
                     type="text"
-                    name="chapterNumber"
+                    name="chapterID"
                     value={chapter.chapterNumber}
                     onChange={handleChange}
                     required

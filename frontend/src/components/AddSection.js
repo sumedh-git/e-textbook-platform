@@ -11,7 +11,7 @@ function AddSection() {
     const {eTextbookID, chapterID, chapterTitle } = location.state || {};
 
     const [section, setSection] = useState({
-        sectionNumber: '',
+        sectionID: '',
         sectionTitle: ''
     });
     const [error, setError] = useState(null);
@@ -32,18 +32,15 @@ function AddSection() {
                     body: JSON.stringify({
                         eTextbookID: eTextbookID,
                         chapterID: chapterID,
-                        sectionNumber: section.sectionNumber,
+                        sectionID: section.sectionID,
                         sectionTitle: section.sectionTitle,
                         createdBy: userID
                     })
                 });
 
-                const data = await response.json();
-
                 if (response.ok) {
                     alert('Section added successfully!');
-                    const { sectionID } = data;
-                    navigate(`/admin/add-content-block-selection`, { state: {eTextbookID, sectionID, sectionTitle: section.sectionTitle,} });
+                    navigate(`/admin/add-content-block-selection`, { state: {eTextbookID, chapterID, sectionID: section.sectionID, sectionTitle: section.sectionTitle,} });
                 } else {
                     const errorData = await response.json();
                     setError(errorData.error || 'Failed to add section');
@@ -69,8 +66,8 @@ function AddSection() {
                     <label>Section Number:</label>
                     <input
                         type="text"
-                        name="sectionNumber"
-                        value={section.sectionNumber}
+                        name="sectionID"
+                        value={section.sectionID}
                         onChange={handleChange}
                         required
                     />

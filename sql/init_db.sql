@@ -213,6 +213,7 @@ VALUES
     ("102", 'A001', 'Fundamentals of Software Engineering'),
     ("103", 'A001', 'Fundamentals of Machine Learning');
 
+
 -- Inserting into Chapters
 -- INSERT INTO Chapters (ETextbookID, ChapterNumber, Title, CreatedBy)
 -- VALUES 
@@ -251,6 +252,7 @@ VALUES
 --     (10, "Block01", 'Activity', 'ACT0', 'A001', FALSE);
 
 -- Inserting into Courses
+
 INSERT INTO Courses (CourseID, Title, FacultyID, TAID, StartDate, EndDate, Type, ETextbookID)
 VALUES 
     ('CS101', 'Database Systems', 'F001', "T001", '2024-01-10', '2024-05-15', 'Active', "101"),
@@ -272,3 +274,4 @@ VALUES
     ('S002', 'CS101', NULL, 'Approved'),
     ('S002', 'CS103', 1, 'Pending'),
     ('S001', 'CS103', NULL, 'Denied');
+
