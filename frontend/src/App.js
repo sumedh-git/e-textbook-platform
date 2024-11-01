@@ -15,6 +15,9 @@ import ChangePassword from './components/ChangePassword'
 import FacultyActiveCourse from './components/FacultyActiveCourse'
 import FacultyEvaluationCourse from './components/FacultyEvaluationCourse'
 import FacultyViewCourses from './components/FacultyViewCourses'
+import StudentLogin  from './components/StudentLogin';
+import StudentEnroll from './components/StudentEnroll';
+import StudentDashboard from './components/Student Dashboard';
 
 function App() {
     return (
@@ -32,6 +35,9 @@ function App() {
                 <Route path="/admin/add-activity" element={<AddActivity />} />
                 <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
                 <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/student/login" element={<StudentLogin />} />
+                <Route path="/student/enroll" element={<StudentEnroll />} />
+                <Route path="/dashboard/student" element={<StudentDashboard />} />
                 <Route
                 path="/faculty/active-course"
                 element={<FacultyActiveCourse />}

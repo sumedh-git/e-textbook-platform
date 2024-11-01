@@ -6,7 +6,11 @@ function Home() {
     const navigate = useNavigate();
 
     const handleSelection = (role) => {
-        navigate(`/login/${role}`);
+        if(role === 'student'){
+            navigate(`/student/login`)
+        }else{
+            navigate(`/login/${role}`);
+        }
     };
 
     return (

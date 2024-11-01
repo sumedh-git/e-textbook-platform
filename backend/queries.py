@@ -325,3 +325,17 @@ def get_faculty_courses(user_id):
     cursor.close()
     connection.close()
     return courses
+
+def get_student_user_id_by_email(email):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # Since each user has only 1 role, we can use this query directly
+    query = """
+        SELECT UserID FROM Users WHERE Email = %s;
+    """
+    cursor.execute(query, (email,))
+    student_id = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return student_id
