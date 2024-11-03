@@ -8,6 +8,7 @@ function StudentEnroll() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [enrollmentToken, setEnrollmentToken] = useState('');
 
     const handleSubmit = async (e) => {
@@ -16,7 +17,7 @@ function StudentEnroll() {
         const response = await fetch('http://localhost:5000/api/student/enroll-student', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({email: email})
+            body: JSON.stringify({email: email, firstName: firstName, lastName: lastName, enrollmentToken: enrollmentToken, password: password})
         });
         const data = await response.json();
         if (response.ok) {
@@ -63,6 +64,15 @@ function StudentEnroll() {
                             type="text"
                             value={enrollmentToken}
                             onChange={(e) => setEnrollmentToken(e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mt-3">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                     </Form.Group>
