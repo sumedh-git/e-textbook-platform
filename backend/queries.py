@@ -24,7 +24,7 @@ def create_user(data, role):
         cursor.execute("SELECT * FROM Users WHERE Email = %s OR UserID = %s", (email, user_id))
         existing_user = cursor.fetchone()
         if existing_user:
-            return False, "A user with this email or UserID already exists."
+            return False, None, "A user with this email or UserID already exists."
 
         # Insert into the Users table
         cursor.execute("""
@@ -41,17 +41,17 @@ def create_user(data, role):
             cursor.execute("INSERT INTO Students (UserID) VALUES (%s)", (user_id,))
         else:
             connection.rollback()  # Rollback transaction if role is invalid
-            return False, "Invalid role specified."
+            return False, None, "Invalid role specified."
 
         # Commit the transaction
         connection.commit()
 
-        return True, f"{role.capitalize()} account created successfully with UserID: {user_id}"
+        return True, user_id, f"{role.capitalize()} account created successfully with UserID: {user_id}"
     
     except Exception as e:
         # Rollback in case of any errors
         connection.rollback()
-        return False, str(e)
+        return False, None, str(e)
     
     finally:
         # Close cursor and connection
@@ -608,16 +608,92 @@ def modify_question(data):
         cursor.close()
         connection.close()
 
-def get_student_user_id_by_email(email):
+def get_student_user_id_by_details(data):
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+    email = data.get('email')
+
+    # Check if all required fields are present in data
+    if not all([email, first_name, last_name]):
+        return None     
+
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Correct the query syntax and ensure placeholders are correct
+        query = """
+            SELECT UserID FROM Users 
+            WHERE Email = %s AND FirstName = %s AND LastName = %s
+        """
+        # Execute query with parameters to prevent SQL injection
+        cursor.execute(query, (email, first_name, last_name))
+        
+        # Fetch the result
+        student_id = cursor.fetchone()
+        
+        if student_id:
+            student_id = student_id[0]
+        else:
+            return None
+
+    except Exception as e:
+        return None
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    return student_id
+
+def get_course_details_by_token(token):
     connection = get_db_connection()
     cursor = connection.cursor()
     
     # Since each user has only 1 role, we can use this query directly
     query = """
-        SELECT UserID FROM Users WHERE Email = %s;
+        SELECT CourseID,Capacity FROM activecourses WHERE Token LIKE %s;
     """
-    cursor.execute(query, (email,))
-    student_id = cursor.fetchone()
+    cursor.execute(query, (token,))
+    result = cursor.fetchone()
     cursor.close()
     connection.close()
-    return student_id
+    return result
+
+def get_current_enrollment_count_by_course_id(token):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT COUNT(*) FROM Enrollments WHERE CourseID=%s AND EnrollmentStatus='Enrolled';
+    """
+    cursor.execute(query, (token,))
+    enrollment_count = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return enrollment_count
+
+def create_enrollment(course_id, student_id):
+    if not course_id or not student_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Insert the enrollment into the database
+        cursor.execute("""
+            INSERT INTO Enrollments (CourseID, StudentID, EnrollmentStatus)
+            VALUES (%s, %s,"Pending")
+        """, (course_id, student_id))
+
+        connection.commit()
+        return True, f" Student has been added to waitlist."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()

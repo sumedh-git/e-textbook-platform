@@ -99,3 +99,15 @@ button:disabled {
   justify-content: center;
   min-height: 100vh;
 }
+
+/* Center alignment for the student dashboard */
+.centered-container {
+  margin: 0 auto;
+  margin-top: 5rem;
+  margin-left: 5rem;
+  margin-right: 5rem;
+  padding: 0 10rem;
+  color: #61dafb;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}

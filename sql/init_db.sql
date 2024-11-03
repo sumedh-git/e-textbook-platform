@@ -173,8 +173,7 @@ CREATE TABLE ActiveCourses (
 CREATE TABLE Enrollments (
     StudentID VARCHAR(10),
     CourseID VARCHAR(20),
-    WaitlistNumber INT,
-    EnrollmentStatus ENUM('Pending', 'Approved', 'Denied'),
+    EnrollmentStatus ENUM('Pending', 'Enrolled'),
     PRIMARY KEY (StudentID, CourseID),
 
     FOREIGN KEY (StudentID) REFERENCES Students(UserID)
@@ -213,44 +212,6 @@ VALUES
     ("102", 'A001', 'Fundamentals of Software Engineering'),
     ("103", 'A001', 'Fundamentals of Machine Learning');
 
-
--- Inserting into Chapters
--- INSERT INTO Chapters (ETextbookID, ChapterNumber, Title, CreatedBy)
--- VALUES 
---     (101, 'chap01', 'Introduction to Database', 'A001'),
---     (101, 'chap02', 'The Relational Model', 'A001'),
---     (102, 'chap01', 'Introduction to Software Engineering', 'A001'),
---     (102, 'chap02', 'Introduction to Software Development Life Cycle (SDLC)', 'A001'),
---     (103, 'chap01', 'Introduction to Machine Learning', 'A001');
-
--- -- Inserting into Sections
--- INSERT INTO Sections (ChapterID, SectionNumber, Title, CreatedBy, IsHidden)
--- VALUES 
---     (1, 'Sec01', 'Database Management Systems (DBMS) Overview', 'A001', FALSE),
---     (1, 'Sec02', 'Data Models and Schemas', 'A001', FALSE),
---     (2, 'Sec01', 'Entities, Attributes, and Relationships', 'A001', FALSE),
---     (2, 'Sec02', 'Normalization and Integrity Constraints', 'A001', FALSE),
---     (3, 'Sec01', 'History and Evolution of Software Engineering', 'A001', FALSE),
---     (3, 'Sec02', 'Key Principles of Software Engineering', 'A001', FALSE),
---     (4, 'Sec01', 'Phases of the SDLC', 'A001', TRUE),
---     (4, 'Sec02', 'Agile vs. Waterfall Models', 'A001', FALSE),
---     (5, 'Sec01', 'Overview of Machine Learning', 'A001', TRUE),
---     (5, 'Sec02', 'Supervised vs Unsupervised Learning', 'A001', FALSE);
-
--- -- Inserting into ContentBlocks
--- INSERT INTO ContentBlocks (SectionID, BlockName, BlockType, Content, CreatedBy, IsHidden)
--- VALUES 
---     (1, "Block01", 'Text', 'A Database Management System (DBMS) is software that enables users to efficiently create, manage, and manipulate databases. It serves as an interface between the database and end users, ensuring data is stored securely, retrieved accurately, and maintained consistently. Key features of a DBMS include data organization, transaction management, and support for multiple users accessing data concurrently.', 'A001', FALSE),
---     (2, "Block01", 'Activity', 'ACT0', 'A001', FALSE),
---     (3, "Block01", 'Text', 'DBMS systems provide structured storage and ensure that data is accessible through queries using languages like SQL. They handle critical tasks such as maintaining data integrity, enforcing security protocols, and optimizing data retrieval, making them essential for both small-scale and enterprise-level applications. Examples of popular DBMS include MySQL, Oracle, and PostgreSQL.', 'A001', FALSE),
---     (4, "Block01", 'Image', 'sample.png', 'A001', FALSE),
---     (5, "Block01", 'Text', 'The history of software engineering dates back to the 1960s, when the "software crisis" highlighted the need for structured approaches to software development due to rising complexity and project failures. Over time, methodologies such as Waterfall, Agile, and DevOps evolved, transforming software engineering into a disciplined, iterative process that emphasizes efficiency, collaboration, and adaptability.', 'A001', FALSE),
---     (6, "Block01", 'Activity', 'ACT0', 'A001', FALSE),
---     (7, "Block01", 'Text', 'The Software Development Life Cycle (SDLC) consists of key phases including requirements gathering, design, development, testing, deployment, and maintenance. Each phase plays a crucial role in ensuring that software is built systematically, with feedback and revisions incorporated at each step to deliver a high-quality product.', 'A001', FALSE),
---     (8, "Block01", 'Image', 'sample2.png', 'A001', FALSE),
---     (9, "Block01", 'Text', 'Machine learning is a subset of artificial intelligence that enables systems to learn from data, identify patterns, and make decisions with minimal human intervention. By training algorithms on vast datasets, machine learning models can improve their accuracy over time, driving advancements in fields like healthcare, finance, and autonomous systems.', 'A001', FALSE),
---     (10, "Block01", 'Activity', 'ACT0', 'A001', FALSE);
-
 -- Inserting into Courses
 
 INSERT INTO Courses (CourseID, Title, FacultyID, TAID, StartDate, EndDate, Type, ETextbookID)
@@ -267,11 +228,11 @@ VALUES
     ('CS102', 'D4E5F6G', 25),
     ('CS103', 'H7I8J9K', 20);
 
-INSERT INTO Enrollments (StudentID, CourseID, WaitlistNumber, EnrollmentStatus)
+INSERT INTO Enrollments (StudentID, CourseID, EnrollmentStatus)
 VALUES 
-    ('S001', 'CS101', NULL, 'Approved'),
-    ('S001', 'CS102', NULL, 'Approved'),
-    ('S002', 'CS101', NULL, 'Approved'),
-    ('S002', 'CS103', 1, 'Pending'),
-    ('S001', 'CS103', NULL, 'Denied');
+    ('S001', 'CS101', 'Enrolled'),
+    ('S001', 'CS102',  'Enrolled'),
+    ('S002', 'CS101', 'Enrolled'),
+    ('S002', 'CS102', 'Pending'),
+    ('S001', 'CS103', 'Pending');
 

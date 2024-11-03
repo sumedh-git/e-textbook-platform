@@ -1,83 +1,141 @@
-import React from 'react';
-import { Button, Container, Row, Col } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-
-function StudentDashboard() {
-    const navigate = useNavigate();
-
-    const handleSelection = (option) => {
-        switch (option) {
-            case 1:
-                navigate('/admin/create-faculty');
-                break;
-            case 2:
-                navigate('/admin/create-etextbook');
-                break;
-            case 3:
-                navigate('/admin/modify-etextbook');
-                break;
-            case 4:
-                navigate('/admin/create-active-course');
-                break;
-            case 5:
-                navigate('/admin/create-evaluation-course');
-                break;
-            case 6:
-                alert('Logging out...');
-                navigate('/');
-                break;
-            default:
-                alert('Invalid option');
+import React, { useState } from 'react';
+const eBooksData = [
+    { 
+      title: "E-book 1",
+      chapters: [
+        {
+          title: "Chapter 1",
+          sections: [
+            {
+              title: "Section 1",
+              blocks: ["Block 1"]
+            },
+            {
+              title: "Section 2",
+              blocks: ["Block 2"]
+            }
+          ]
+        },
+        {
+          title: "Chapter 2",
+          sections: [
+            {
+              title: "Section 1",
+              blocks: ["Block 1"]
+            }
+          ]
         }
-    };
+      ]
+    },
+    {
+      title: "E-book 2",
+      chapters: [
+        {
+          title: "Chapter 1",
+          sections: [
+            {
+              title: "Section 1",
+              blocks: ["Block 1"]
+            },
+            {
+              title: "Section 2",
+              blocks: ["Block 2"]
+            }
+          ]
+        },
+        {
+          title: "Chapter 2",
+          sections: [
+            {
+              title: "Section 1",
+              blocks: ["Block 1"]
+            }
+          ]
+        }
+      ]
+    }
+  ];
+  
+  
+// Block Component
+const Block = ({ block }) => {
+  return <li style={{ border: "1px solid #ccc", padding: "0.5rem", margin: "0.5rem 0" }}>{block}</li>;
+};
 
-    return (
-        <Container className="text-center mt-5">
-            <h1>Student Landing Page</h1>
-            {/* <Row className="mt-4">
-                <Col>
-                    <Button variant="primary" size="lg" block onClick={() => handleSelection(1)}>
-                        Create a Faculty Account
-                    </Button>
-                </Col>
-            </Row>
-            <Row className="mt-3">
-                <Col>
-                    <Button variant="success" size="lg" block onClick={() => handleSelection(2)}>
-                        Create E-textbook
-                    </Button>
-                </Col>
-            </Row>
-            <Row className="mt-3">
-                <Col>
-                    <Button variant="info" size="lg" block onClick={() => handleSelection(3)}>
-                        Modify E-textbooks
-                    </Button>
-                </Col>
-            </Row>
-            <Row className="mt-3">
-                <Col>
-                    <Button variant="warning" size="lg" block onClick={() => handleSelection(4)}>
-                        Create New Active Course
-                    </Button>
-                </Col>
-            </Row>
-            <Row className="mt-3">
-                <Col>
-                    <Button variant="dark" size="lg" block onClick={() => handleSelection(5)}>
-                        Create New Evaluation Course
-                    </Button>
-                </Col>
-            </Row>
-            <Row className="mt-4">
-                <Col>
-                    <Button variant="danger" size="lg" block onClick={() => handleSelection(6)}>
-                        Logout
-                    </Button>
-                </Col>
-            </Row> */}
-        </Container>
-    );
-}
+// Section Component
+const Section = ({ section }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div style={{ border: "1px solid #ccc", padding: "0.5rem", margin: "0.5rem 0" }}>
+      <h4 onClick={() => setIsExpanded(!isExpanded)}>
+      {isExpanded ? "▼" : "►"}
+      {section.title}
+      </h4>
+      {isExpanded && (
+        <ul>
+          {section.blocks.map((block, index) => (
+            <Block key={index} block={block} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+// Chapter Component
+const Chapter = ({ chapter }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div style={{ border: "1px solid #ccc", padding: "0.5rem", margin: "0.5rem 0" }}>
+      <h3 onClick={() => setIsExpanded(!isExpanded)}>
+        {isExpanded ? "▼" : "►"}
+        {chapter.title}
+      </h3>
+      {isExpanded && (
+        <div style={{ paddingLeft: "20px" }}>
+          {chapter.sections.map((section, index) => (
+            <Section key={index} section={section} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// EBook Component
+const EBook = ({ ebook }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div style={{ border: "1px solid #ccc", padding: "0.5rem", margin: "0.5rem 0" }}>
+      <h2 onClick={() => setIsExpanded(!isExpanded)}>
+        {isExpanded ? "▼" : "►"}
+        {ebook.title}
+      </h2>
+      {isExpanded && (
+        <div style={{ paddingLeft: "20px" }}>
+          {ebook.chapters.map((chapter, index) => (
+            <Chapter key={index} chapter={chapter} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main Component
+const StudentDashboard = () => {
+  return (
+    <div>
+        <div className="centered-container">
+        {eBooksData.map((ebook, index) => (
+            <EBook key={index} ebook={ebook} />
+        ))}
+        </div>
+    </div>
+  );
+};
 
 export default StudentDashboard;
