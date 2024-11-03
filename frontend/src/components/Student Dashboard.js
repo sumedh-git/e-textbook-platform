@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { Container, Button, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+
+
 const eBooksData = [
     { 
       title: "E-book 1",
@@ -126,13 +130,40 @@ const EBook = ({ ebook }) => {
 };
 
 // Main Component
-const StudentDashboard = () => {
+function StudentDashboard(){
+const navigate = useNavigate();
+
   return (
     <div>
         <div className="centered-container">
         {eBooksData.map((ebook, index) => (
             <EBook key={index} ebook={ebook} />
         ))}
+        </div>
+        <div>
+        <Container className="text-center my-5">
+            <Row className="justify-content-center">
+                <Col md={4}>
+                    <Button variant="primary" size="lg" block className="mb-3" onClick={() => navigate('/student/view-section')}>
+                        View Section 
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="justify-content-center">
+                <Col md={4}>
+                    <Button variant="primary" size="lg" block className="mb-3"  onClick={() => navigate('/student/view-participation-activity-points')}>
+                       View Participation Activity Points
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="justify-content-center">
+                <Col md={4}>
+                    <Button variant="danger" size="lg" block onClick={() => navigate('/student/login')}>
+                        Logout
+                    </Button>
+                </Col>
+            </Row>
+        </Container>
         </div>
     </div>
   );

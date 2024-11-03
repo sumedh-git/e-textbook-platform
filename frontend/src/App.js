@@ -32,6 +32,9 @@ import TAViewCourses from "./components/TAViewCourses";
 import TAActiveCourse from "./components/TAActiveCourse";
 import TAViewStudents from "./components/TAViewStudents";
 import FacultyViewStudents from "./components/FacultyViewStudents";
+import StudentViewSection from "./components/StudentViewSection";
+import StudentViewBlock from "./components/StudentViewBlock";
+import StudentViewParticipationActivityPoints from "./components/StudentViewParticipationActivityPoints";
 
 function App() {
     return (
@@ -60,6 +63,9 @@ function App() {
                 <Route path="/student/login" element={<StudentLogin />} />
                 <Route path="/student/enroll" element={<StudentEnroll />} />
                 <Route path="/dashboard/student" element={<StudentDashboard />} />
+                <Route path="/student/view-section" element={<StudentViewSection />} />
+                <Route path="/student/view-block" element={<StudentViewBlock />} />
+                <Route path="/student/view-participation-activity-points" element={<StudentViewParticipationActivityPoints />} />
                 <Route
                 path="/faculty/active-course"
                 element={<FacultyActiveCourse />}
