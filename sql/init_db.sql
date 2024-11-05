@@ -2,6 +2,8 @@ SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS Users, Students, Faculties, Admins, TAs, Etextbooks, Chapters, Sections, ContentBlocks, Questions, Activities, Answers, Courses, ActiveCourses, Enrollments, CourseTAs;
 SET foreign_key_checks = 1;
 
+DROP PROCEDURE IF EXISTS DeleteSectionByFacultyOrTA;
+
 CREATE TABLE Users (
     UserID VARCHAR(10) PRIMARY KEY,
     FirstName VARCHAR(50) NOT NULL,
@@ -197,24 +199,24 @@ CREATE TABLE Enrollments (
 
 -- CREATE Statements done
 
-INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
-VALUES ('A001', 'Alice', 'Smith', 'alice@example.com', 'password123'),
-       ('F001', 'John', 'Doe', 'john.doe@example.com', 'password123'),
-       ('S001', 'Jane', 'Doe', 'jane.doe@example.com', 'password123'),
-       ('S002', 'Ross', 'Geller', 'ross.geller@example.com', 'password123'),
-       ('T001', 'Mike', 'Johnson', 'mike.j@example.com', 'password123');
+-- INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
+-- VALUES ('A001', 'Alice', 'Smith', 'alice@example.com', 'password123'),
+--        ('F001', 'John', 'Doe', 'john.doe@example.com', 'password123'),
+--        ('S001', 'Jane', 'Doe', 'jane.doe@example.com', 'password123'),
+--        ('S002', 'Ross', 'Geller', 'ross.geller@example.com', 'password123'),
+--        ('T001', 'Mike', 'Johnson', 'mike.j@example.com', 'password123');
 
-INSERT INTO Admins (UserID)
-VALUES ('A001');  -- Alice Smith is an Admin
+-- INSERT INTO Admins (UserID)
+-- VALUES ('A001');  -- Alice Smith is an Admin
 
-INSERT INTO Faculties (UserID)
-VALUES ('F001');  -- John Doe is a Faculty member
+-- INSERT INTO Faculties (UserID)
+-- VALUES ('F001');  -- John Doe is a Faculty member
 
-INSERT INTO Students (UserID)
-VALUES ('S001'), ("S002");  -- Jane Doe is a Student
+-- INSERT INTO Students (UserID)
+-- VALUES ('S001'), ("S002");  -- Jane Doe is a Student
 
-INSERT INTO TAs (UserID)
-VALUES ('T001');  -- Mike Johnson is a Student
+-- INSERT INTO TAs (UserID)
+-- VALUES ('T001');  -- Mike Johnson is a Student
 
 -- Inserting into ETextbooks
 -- INSERT INTO ETextbooks (ETextbookID, CreatedBy, Title)

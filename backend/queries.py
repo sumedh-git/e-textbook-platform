@@ -778,22 +778,13 @@ def delete_section(data):
     cursor = connection.cursor()
     
     try:
-        # Verify if the user has permission to delete the section
-        cursor.execute("""
-            SELECT COUNT(*) FROM Sections
-            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND CreatedBy = %s
-        """, (etextbook_id, chapter_id, section_id, user_id))
-        section_exists = cursor.fetchone()[0] > 0
-
-        if not section_exists:
-            return False, "You do not have permission to delete this section."
-
-        # Delete the section
-        cursor.execute("""
-            DELETE FROM Sections
-            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s
-        """, (etextbook_id, chapter_id, section_id))
+        cursor.callproc("DeleteSectionByFacultyOrTA", (user_id, etextbook_id, chapter_id, section_id))
         
+        # Fetch results from the stored procedure
+        result = cursor.fetchone()
+        if result:
+            return True, result[0]  # Return the success message
+
         connection.commit()
         return True, "Section deleted successfully."
     
