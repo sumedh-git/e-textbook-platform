@@ -55,7 +55,7 @@ function FacultyViewCourses() {
       style={{ minHeight: "100vh" }}
     >
       <Card style={{ width: "600px" }} className="p-4">
-        <h2 className="text-center mb-4">Faculty: Active Courses</h2>
+        <h2 className="text-center mb-4">TA: View Courses</h2>
 
         {loading ? ( // Check if data is still loading
           <Alert variant="info">Fetching results...</Alert>

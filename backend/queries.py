@@ -391,8 +391,10 @@ def get_ta_courses(user_id):
     cursor = connection.cursor()
     
     query = """
-        SELECT * FROM Courses
-        WHERE TAID = %s
+        SELECT c.CourseID, c.Title, c.FacultyID, c.StartDate, c.EndDate, c.Type, c.ETextbookID
+        FROM Courses c
+        INNER JOIN CourseTAs ta ON c.CourseID = ta.CourseID
+        WHERE ta.TAID = %s
     """
 
     cursor.execute(query, (user_id,))
