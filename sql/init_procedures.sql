@@ -1,4 +1,5 @@
 DROP PROCEDURE IF EXISTS DeleteSectionByFacultyOrTA;
+DROP PROCEDURE IF EXISTS check_end_date;
 
 /&/
 
