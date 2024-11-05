@@ -20,6 +20,7 @@ function Login() {
             const data = await response.json();
             if (response.ok) {
                 localStorage.setItem('userID', data.user.user_id);
+                localStorage.setItem('role', role)
                 navigate(`/dashboard/${role}`);
             } else {
                 setError(data.error);

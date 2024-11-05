@@ -17,6 +17,7 @@ function ModifyQuestion() {
     const [error, setError] = useState(null);
 
     const userID = localStorage.getItem('userID');
+    const role = localStorage.getItem('role');
 
     const handleOptionChange = (index, field, value) => {
         const updatedOptions = [...options];
@@ -126,7 +127,7 @@ function ModifyQuestion() {
 
                 <button type="button" onClick={handleSubmit}>Save</button>
                 <button type="button" onClick={() => navigate(-1)}>Cancel</button>
-                <button type="button" onClick={() => navigate('/dashboard/admin')}>Landing Page</button>
+                <button type="button" onClick={() => navigate(`/dashboard/${role}`)}>Landing Page</button>
             </form>
         </div>
     );

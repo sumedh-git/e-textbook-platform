@@ -341,14 +341,14 @@ def get_faculty_active_course(user_id, course_id):
     cursor = connection.cursor()
     
     query = """
-        SELECT ac.CourseID FROM ActiveCourses ac
+        SELECT ac.CourseID, c.ETextbookID FROM ActiveCourses ac
         JOIN Courses c ON ac.CourseID = c.CourseID
         WHERE ac.CourseID = %s AND c.FacultyID = %s
     """
 
     cursor.execute(query, (course_id, user_id))
     course = cursor.fetchone()
-
+    print(course)
     cursor.close()
     connection.close()
     return course
@@ -358,7 +358,7 @@ def get_evaluation_course(user_id, course_id):
     cursor = connection.cursor()
     
     query = """
-        SELECT CourseID FROM Courses
+        SELECT CourseID, ETextbookID FROM Courses
         WHERE CourseID = %s AND FacultyID = %s AND Type = "Evaluation"
     """
 
@@ -493,6 +493,20 @@ def check_content_block_exists(etextbook_id, chapter_id, section_id, content_blo
     connection.close()
     return exists
 
+def check_faculty_exists(faculty_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("SELECT COUNT(*) FROM Faculties WHERE UserID = %s", (faculty_id,))
+        faculty_exists = cursor.fetchone()[0] > 0
+        return faculty_exists
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
 def modify_content_block(data):
     eTextbookID = data.get('eTextbookID')
     chapter_id = data.get('chapterID')
@@ -604,6 +618,245 @@ def modify_question(data):
         connection.rollback()
         return False, str(e)
 
+    finally:
+        cursor.close()
+        connection.close()
+
+def create_active_course(data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        if not check_faculty_exists(data['facultyID']):
+            return False, "The specified faculty member does not exist."
+        
+        if not check_etextbook_exists(data['eTextbookID']):
+            return False, "The specified e-textbook does not exist."
+
+        # Insert into Courses table
+        cursor.execute("""
+            INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, ETextbookID)
+            VALUES (%s, %s, %s, %s, %s, 'Active', %s)
+        """, (data['courseID'], data['courseName'], data['facultyID'], data['startDate'], data['endDate'], data['eTextbookID']))
+
+        # Insert into ActiveCourses table
+        cursor.execute("""
+            INSERT INTO ActiveCourses (CourseID, Token, Capacity)
+            VALUES (%s, %s, %s)
+        """, (data['courseID'], data['token'], data['capacity']))
+
+        connection.commit()
+        return True, f"Active course '{data['courseName']}' created successfully"
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def create_evaluation_course(data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        if not check_faculty_exists(data['facultyID']):
+            return False, "The specified faculty member does not exist."
+        
+        if not check_etextbook_exists(data['eTextbookID']):
+            return False, "The specified e-textbook does not exist."
+
+        # Insert into Courses table as Evaluation course
+        cursor.execute("""
+            INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, ETextbookID)
+            VALUES (%s, %s, %s, %s, %s, 'Evaluation', %s)
+        """, (data['courseID'], data['courseName'], data['facultyID'], data['startDate'], data['endDate'], data['eTextbookID']))
+
+        connection.commit()
+        return True, f"Evaluation course '{data['courseName']}' created successfully"
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def hide_chapter(data):
+    eTextbookID = data.get('eTextbookID')
+    chapterID = data.get('chapterID')
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute("""
+            UPDATE Chapters
+            SET IsHidden = TRUE
+            WHERE ETextbookID = %s AND ChapterID = %s
+        """, (eTextbookID, chapterID))
+        connection.commit()
+        return True, "Chapter hidden successfully."
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    finally:
+        cursor.close()
+        connection.close()
+
+def delete_chapter(data):
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    user_id = data.get('userID')
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Attempt to delete the chapter only if the user is the creator
+        cursor.execute("""
+            DELETE FROM Chapters
+            WHERE ETextbookID = %s AND ChapterID = %s AND CreatedBy = %s
+        """, (etextbook_id, chapter_id, user_id))
+
+        if cursor.rowcount == 0:
+            # If no rows were affected, either the chapter doesn't belong to the user or doesn't exist
+            return False, "You are not authorized to delete this chapter."
+
+        connection.commit()
+        return True, "Chapter deleted successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, f"Failed to delete chapter: {str(e)}"
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def hide_section(data): 
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+
+    if not etextbook_id or not chapter_id or not section_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        cursor.execute("""
+            UPDATE Sections
+            SET IsHidden = TRUE
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s
+        """, (etextbook_id, chapter_id, section_id))
+        
+        connection.commit()
+        return True, "Section hidden successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+def delete_section(data):
+    user_id = data.get('userID')
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+
+    if not user_id or not etextbook_id or not chapter_id or not section_id:
+        return False, "Missing required fields"
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        # Verify if the user has permission to delete the section
+        cursor.execute("""
+            SELECT COUNT(*) FROM Sections
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND CreatedBy = %s
+        """, (etextbook_id, chapter_id, section_id, user_id))
+        section_exists = cursor.fetchone()[0] > 0
+
+        if not section_exists:
+            return False, "You do not have permission to delete this section."
+
+        # Delete the section
+        cursor.execute("""
+            DELETE FROM Sections
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s
+        """, (etextbook_id, chapter_id, section_id))
+        
+        connection.commit()
+        return True, "Section deleted successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def add_ta_to_course(data):
+    courseID = data.get('courseID')
+    firstName = data.get('firstName')
+    lastName = data.get('lastName')
+    email = data.get('email')
+    password = data.get('password')
+
+    print(courseID, firstName, lastName, email, password)
+    if not all([courseID, firstName, lastName, email, password]):
+        return False, "Missing required fields."
+
+    user_id = generate_user_id(firstName, lastName)
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Check if email is already registered
+        cursor.execute("SELECT UserID FROM Users WHERE Email = %s", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            ta_user_id = existing_user[0]
+            # Check if this user is already a TA for the course
+            cursor.execute("SELECT * FROM CourseTAs WHERE CourseID = %s AND TAID = %s", (courseID, ta_user_id))
+            if cursor.fetchone():
+                return False, "TA already associated with this course."
+        else:
+            # Insert into Users table
+            cursor.execute(
+                """
+                INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (user_id,firstName, lastName, email, password)
+            )
+            # Insert into TAs table
+            cursor.execute("INSERT INTO TAs (UserID) VALUES (%s)", (user_id,))
+
+        # Associate TA with the course in CourseTAs table
+        cursor.execute(
+            "INSERT INTO CourseTAs (CourseID, TAID) VALUES (%s, %s)",
+            (courseID, user_id)
+        )
+
+        connection.commit()
+        return True, "TA added to course successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
     finally:
         cursor.close()
         connection.close()
