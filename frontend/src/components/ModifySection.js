@@ -13,6 +13,8 @@ function ModifySection() {
 
     const [error, setError] = useState(null);  // State for error messages
 
+    const role = localStorage.getItem('role');
+    
     // Handle input changes and reset error when input changes
     const handleChange = (e) => {
         setFormData({
@@ -53,7 +55,7 @@ function ModifySection() {
         } else if (option === 3) {
             navigate(-1);  // Go back to previous page
         } else if (option === 4) {
-            navigate('/dashboard/admin');  // Go to admin landing page
+            navigate(`/dashboard/${role}`);  // Go to admin landing page
         }
     };
 

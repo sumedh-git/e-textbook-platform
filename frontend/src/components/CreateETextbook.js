@@ -12,6 +12,7 @@ function CreateETextbook() {
 
     // Assume UserID is available in local storage (you can adjust based on your authentication logic)
     const userID = localStorage.getItem('userID');  // Retrieve the UserID from local storage
+    const role = localStorage.getItem('role');
 
     // Handle input change
     const handleChange = (e) => {
@@ -37,7 +38,7 @@ function CreateETextbook() {
                     const data = await response.json();
                     alert('E-Textbook created successfully!');
                     // Redirect to Add New Chapter page, passing the E-textbook ID and title
-                    navigate(`/admin/add-chapter`, { state: { eTextbookID: eTextbook.eTextbookID, title: eTextbook.title } });
+                    navigate(`/${role}/add-chapter`, { state: { eTextbookID: eTextbook.eTextbookID, title: eTextbook.title } });
                 } else {
                     const errorData = await response.json();
                     setError(errorData.error || 'Failed to create E-textbook');
@@ -48,7 +49,7 @@ function CreateETextbook() {
         } else if (option === 2) {
             // Discard input and Go Back to Admin's Landing Page
             setETextbook({ title: '', eTextbookID: '' });
-            navigate('/dashboard/admin');
+            navigate(`/dashboard/${role}`);
         }
     };
 

@@ -35,13 +35,15 @@ function ModifyChapter() {
 
 
         if (option === 1) {
+            navigate("/faculty/hide-chapter", { state: { eTextbookID, chapterID } });
+        }else if (option === 2) {
+            navigate("/faculty/delete-chapter", { state: { eTextbookID, chapterID } });
+        }else if (option === 3) {
             navigate(`/${role}/add-section`, { state: { eTextbookID, chapterID } });
-        } else if (option === 2) {
-            navigate(`/${role}/modify-section`, { state: { eTextbookID, chapterID } });
-        } else if (option === 3) {
-            navigate(-1);
         } else if (option === 4) {
-            navigate(`/dashboard/${role}`);
+            navigate(`/${role}/modify-section`, { state: { eTextbookID, chapterID } });
+        } else if (option === 5) {
+            navigate(-1);
         }
     };
 
@@ -53,10 +55,11 @@ function ModifyChapter() {
                 <label>Unique Chapter ID:</label>
                 <input type="text" value={chapterID} onChange={handleChange} required />
                 <h3>Menu</h3>
-                <button type="button" onClick={() => handleOption(1)}>Add New Section</button>
-                <button type="button" onClick={() => handleOption(2)}>Modify Section</button>
-                <button type="button" onClick={() => handleOption(3)}>Go Back</button>
-                <button type="button" onClick={() => handleOption(4)}>Landing Page</button>
+                <button type="button" onClick={() => handleOption(1)}>Hide Chapter</button>
+                <button type="button" onClick={() => handleOption(2)}>Delete Chapter</button>
+                <button type="button" onClick={() => handleOption(3)}>Add New Section</button>
+                <button type="button" onClick={() => handleOption(4)}>Modify Section</button>
+                <button type="button" onClick={() => handleOption(5)}>Go Back</button>
             </form>
         </div>
     );

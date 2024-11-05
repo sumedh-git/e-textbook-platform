@@ -79,7 +79,7 @@ function FacultyViewCourses() {
                     <br />
                     <strong>Status:</strong> {course[5]}
                     <br />
-                    <strong>Course Code:</strong> {course[6]}
+                    <strong>ETextbook Code:</strong> {course[6]}
                   </ListGroup.Item>
                 ))}
               </ListGroup>

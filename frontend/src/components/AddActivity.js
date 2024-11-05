@@ -7,6 +7,8 @@ function AddActivity() {
     const { eTextbookID, chapterID, sectionID, contentBlockID } = location.state || {};  // From previous page
     const [activityID, setActivityID] = useState('');
 
+    const role = localStorage.getItem('role');
+
     const handleAddQuestion = () => {
         if (!activityID) {
             alert('Please enter a unique Activity ID');
@@ -30,7 +32,7 @@ function AddActivity() {
             <h3>Menu</h3>
             <button onClick={handleAddQuestion}>Add Question</button>
             <button onClick={() => navigate(-1)}>Go Back</button>
-            <button onClick={() => navigate('/dashboard/admin')}>Landing Page</button>
+            <button onClick={() => navigate(`/dashboard/${role}`)}>Landing Page</button>
         </div>
     );
 }
