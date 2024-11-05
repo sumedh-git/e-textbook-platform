@@ -39,6 +39,10 @@ import FacultyModifySection from './components/FacutlyModifySection';
 import FacultyHideSection from './components/FacultyHideSection';
 import FacultyDeleteSection from './components/FacultyDeleteSection';
 import FacultyModifyContentBlock from './components/FacultyModifyContentBlock';
+import FacultyHideContentBlock from './components/FacultyHideContentBlock';
+import FacultyDeleteContentBlock from './components/FacultyDeleteContentBlock';
+import FacultyHideActivity from './components/FacultyHideActivity';
+import FacultyDeleteActivity from './components/FacultyDeleteActivity';
 
 function App() {
     return (
@@ -76,6 +80,10 @@ function App() {
                 <Route path="/faculty/hide-section" element={<FacultyHideSection />} />
                 <Route path="/faculty/delete-section" element={<FacultyDeleteSection />} />
                 <Route path="/faculty/modify-content-block" element={<FacultyModifyContentBlock />} />
+                <Route path="/faculty/hide-content-block" element={<FacultyHideContentBlock />} />
+                <Route path="/faculty/delete-content-block" element={<FacultyDeleteContentBlock />} />
+                <Route path="/faculty/hide-activity" element={<FacultyHideActivity />} />
+                <Route path="/faculty/delete-activity" element={<FacultyDeleteActivity />} />
                 <Route path="/faculty/view-courses" element={<FacultyViewCourses />} />
                 <Route path="/faculty/view-students" element={<FacultyViewStudents />} />
                 <Route path="/faculty/add-ta" element={<FacultyAddTa />} />

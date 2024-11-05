@@ -105,7 +105,6 @@ def delete_section_route():
     else:
         return jsonify({"error": message}), 400
 
-
     
 @faculty_bp.route('/add-ta', methods=['POST'])
 def add_ta():
