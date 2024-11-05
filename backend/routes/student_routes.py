@@ -5,7 +5,8 @@ from queries import (
     get_course_details_by_token,
     create_enrollment,
     get_current_enrollment_count_by_course_id,
-    create_user
+    create_user,
+    get_students_textbooks
 )
 
 student_bp = Blueprint('student', __name__)
@@ -56,3 +57,59 @@ def enroll_student():
             return jsonify({"error": f"Enrollment failed: {enrollment_message}"}), 400
     else:
         return jsonify({"error": f"Course {course_id} is at full capacity. Cannot enroll at this time."}), 400
+
+@student_bp.route('/student-textbooks', methods=['GET'])
+def get_student_content():
+    student_user_id = request.args.get('student-user-id')
+    result = get_students_textbooks(student_user_id)
+    textbooks = {}
+    
+    for row in result:
+        (ETextbookID, textbook_title, ChapterID, chapter_title, 
+         SectionID, section_title) = row
+        
+        if ETextbookID not in textbooks:
+            textbooks[ETextbookID] = {
+                "ETextbookID": ETextbookID,
+                "Title": textbook_title,
+                "Chapters": {}
+            }
+
+        if ChapterID not in textbooks[ETextbookID]["Chapters"]:
+            textbooks[ETextbookID]["Chapters"][ChapterID] = {
+                "ChapterID": ChapterID,
+                "Title": chapter_title,
+                "Sections": {}
+            }
+
+        if SectionID not in textbooks[ETextbookID]["Chapters"][ChapterID]["Sections"]:
+            textbooks[ETextbookID]["Chapters"][ChapterID]["Sections"][SectionID] = {
+                "SectionID": SectionID,
+                "Title": section_title,
+                "Blocks": []
+            }
+
+    # Convert nested structure into lists
+    result = [
+        {
+            "ETextbookID": et["ETextbookID"],
+            "Title": et["Title"],
+            "Chapters": [
+                {
+                    "ChapterID": ch["ChapterID"],
+                    "Title": ch["Title"],
+                    "Sections": [
+                        {
+                            "SectionID": sec["SectionID"],
+                            "Title": sec["Title"],
+                            "Blocks": sec["Blocks"]
+                        }
+                        for sec in ch["Sections"].values()
+                    ]
+                }
+                for ch in et["Chapters"].values()
+            ]
+        }
+        for et in textbooks.values()
+    ]
+    return jsonify(result)

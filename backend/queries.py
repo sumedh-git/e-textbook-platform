@@ -697,3 +697,38 @@ def create_enrollment(course_id, student_id):
     finally:
         cursor.close()
         connection.close()
+
+def get_students_textbooks(student_user_id):    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT 
+            et.ETextbookID,
+            et.Title AS textbook_title,
+            c.ChapterID,
+            c.Title AS chapter_title,
+            s.SectionID,
+            s.Title AS section_title
+        FROM 
+            Enrollments e
+        JOIN 
+            Courses cr ON e.CourseID = cr.CourseID AND cr.Type LIKE 'Active'
+        JOIN 
+            ETextbooks et ON cr.ETextbookID = et.ETextbookID
+        JOIN 
+            Chapters c ON et.ETextbookID = c.ETextbookID
+        JOIN 
+            Sections s ON c.ETextbookID = s.ETextbookID AND c.ChapterID = s.ChapterID
+        WHERE 
+            e.StudentID = %s AND e.EnrollmentStatus = 'Enrolled' AND
+            c.IsHidden IS FALSE AND 
+            s.IsHidden IS FALSE
+        ORDER BY 
+            et.ETextbookID, c.ChapterID, s.SectionID;
+    """
+    cursor.execute(query,(student_user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
