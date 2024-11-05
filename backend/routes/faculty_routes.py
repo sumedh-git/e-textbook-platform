@@ -1,6 +1,8 @@
 # backend/routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from queries import get_faculty_active_course, get_evaluation_course, get_faculty_courses, get_students_from_course, hide_chapter, delete_chapter, hide_section, delete_section, add_ta_to_course
+from queries import get_faculty_active_course, get_evaluation_course, get_faculty_courses, \
+      get_students_from_course, hide_chapter, delete_chapter, hide_section, delete_section, add_ta_to_course, \
+          delete_activity, delete_content_block
 
 faculty_bp = Blueprint('faculty', __name__)
 
@@ -112,5 +114,23 @@ def add_ta():
     success, message = add_ta_to_course(data)
     if success:
         return jsonify({"message": message}), 201
+    else:
+        return jsonify({"error": message}), 400
+    
+@faculty_bp.route('/delete-activity', methods=['POST'])
+def delete_activity_route():
+    data = request.json
+    success, message = delete_activity(data)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+    
+@faculty_bp.route('/delete-content-block', methods=['POST'])
+def delete_content_block_route():
+    data = request.json
+    success, message = delete_content_block(data)
+    if success:
+        return jsonify({"message": message}), 200
     else:
         return jsonify({"error": message}), 400

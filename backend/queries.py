@@ -711,19 +711,20 @@ def delete_chapter(data):
     chapter_id = data.get('chapterID')
     user_id = data.get('userID')
     
+    if not etextbook_id or not chapter_id or not user_id:
+        return False, "Missing required fields"
+
     connection = get_db_connection()
     cursor = connection.cursor()
 
     try:
-        # Attempt to delete the chapter only if the user is the creator
-        cursor.execute("""
-            DELETE FROM Chapters
-            WHERE ETextbookID = %s AND ChapterID = %s AND CreatedBy = %s
-        """, (etextbook_id, chapter_id, user_id))
+        # Call the stored procedure to delete the chapter
+        cursor.callproc("DeleteChapterByFacultyOrTA", (user_id, etextbook_id, chapter_id))
 
-        if cursor.rowcount == 0:
-            # If no rows were affected, either the chapter doesn't belong to the user or doesn't exist
-            return False, "You are not authorized to delete this chapter."
+        # Fetch results from the stored procedure
+        result = cursor.fetchone()
+        if result:
+            return True, result[0]  # Return the success message
 
         connection.commit()
         return True, "Chapter deleted successfully."
@@ -771,6 +772,7 @@ def delete_section(data):
     chapter_id = data.get('chapterID')
     section_id = data.get('sectionID')
 
+    print(user_id, etextbook_id, chapter_id, section_id)
     if not user_id or not etextbook_id or not chapter_id or not section_id:
         return False, "Missing required fields"
     
@@ -848,6 +850,73 @@ def add_ta_to_course(data):
         connection.rollback()
         return False, str(e)
     
+    finally:
+        cursor.close()
+        connection.close()
+
+def delete_activity(data):
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    block_id = data.get('contentBlockID')
+    activity_id = data.get('activityID')
+    user_id = data.get('userID')
+    
+    if not etextbook_id or not chapter_id or not section_id or not block_id or not activity_id or not user_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Call the stored procedure to delete the activity
+        cursor.callproc("DeleteActivityByFacultyOrTA", (user_id, etextbook_id, chapter_id, section_id, block_id, activity_id))
+
+        # Fetch results from the stored procedure
+        result = cursor.fetchone()
+        if result:
+            return True, result[0]  # Return the success message
+
+        connection.commit()
+        return True, "Activity deleted successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, f"Failed to delete activity: {str(e)}"
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def delete_content_block(data):
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    block_id = data.get('contentBlockID')
+    user_id = data.get('userID')
+    
+    if not etextbook_id or not chapter_id or not section_id or not block_id or not user_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Call the stored procedure to delete the content block
+        cursor.callproc("DeleteContentBlockByFacultyOrTA", (user_id, etextbook_id, chapter_id, section_id, block_id))
+
+        # Fetch results from the stored procedure
+        result = cursor.fetchone()
+        if result:
+            return True, result[0]  # Return the success message
+
+        connection.commit()
+        return True, "Content block deleted successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, f"Failed to delete content block: {str(e)}"
+
     finally:
         cursor.close()
         connection.close()

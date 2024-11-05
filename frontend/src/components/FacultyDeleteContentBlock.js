@@ -5,7 +5,7 @@ import { Container, Card, Button, Alert } from 'react-bootstrap';
 function FacultyDeleteContentBlock() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { eTextbookID, chapterID, sectionID } = location.state || {};
+    const { eTextbookID, chapterID, sectionID, contentBlockID } = location.state || {};
 
     const [errorMessage, setErrorMessage] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
@@ -19,7 +19,7 @@ function FacultyDeleteContentBlock() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userID, eTextbookID, chapterID, sectionID }),
+                body: JSON.stringify({ userID, eTextbookID, chapterID, sectionID, contentBlockID }),
             });
 
             if (response.ok) {
