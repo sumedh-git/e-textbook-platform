@@ -11,6 +11,8 @@ function ModifyETextbook() {
         setETextbookID(e.target.value);
     };
 
+    const role = localStorage.getItem('role');
+
     // Function to check if the E-Textbook exists
     const checkETextbookExists = async () => {
         try {
@@ -43,7 +45,7 @@ function ModifyETextbook() {
             setETextbookID('');
             navigate(-1);
         } else if (option === 4) {
-            navigate('/dashboard/admin');
+            navigate(`/dashboard/${role}`);
         }
     };
 

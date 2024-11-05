@@ -6,6 +6,7 @@ function AddSection() {
     const navigate = useNavigate();
 
     const userID = localStorage.getItem('userID');
+    const role = localStorage.getItem('role');
 
     // Extract the passed ChapterID and Chapter title from the location state
     const {eTextbookID, chapterID, chapterTitle } = location.state || {};
@@ -53,7 +54,7 @@ function AddSection() {
             navigate(`/admin/add-chapter`, { state: { chapterID, chapterTitle } });
         } else if (option === 3) {
             // Go to the Admin's landing page
-            navigate('/dashboard/admin');
+            navigate(`/dashboard/${role}`);
         }
     };
 

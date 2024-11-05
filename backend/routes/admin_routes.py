@@ -1,6 +1,6 @@
 # backend/routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from queries import create_user, create_etextbook_query, add_chapter, add_section, add_content_block, add_activity, add_question, check_etextbook_exists, check_chapter_exists, check_section_exists, check_content_block_exists, modify_content_block, modify_question
+from queries import create_user, create_etextbook_query, add_chapter, add_section, add_content_block, add_activity, add_question, check_etextbook_exists, check_chapter_exists, check_section_exists, check_content_block_exists, modify_content_block, modify_question, create_active_course, create_evaluation_course
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -105,5 +105,23 @@ def modify_question_route():
     success, message = modify_question(data)
     if success:
         return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+    
+@admin_bp.route('/create-active-course', methods=['POST'])
+def create_active_course_route():
+    data = request.json
+    success, message = create_active_course(data)
+    if success:
+        return jsonify({"message": message}), 201
+    else:
+        return jsonify({"error": message}), 400
+
+@admin_bp.route('/create-evaluation-course', methods=['POST'])
+def create_evaluation_course_route():
+    data = request.json
+    success, message = create_evaluation_course(data)
+    if success:
+        return jsonify({"message": message}), 201
     else:
         return jsonify({"error": message}), 400

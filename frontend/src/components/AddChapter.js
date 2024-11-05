@@ -12,6 +12,7 @@ function AddChapter() {
     const navigate = useNavigate();
 
     const userID = localStorage.getItem('userID');
+    const role = localStorage.getItem('role');
 
     // Handle input change for chapter fields
     const handleChange = (e) => {
@@ -36,7 +37,7 @@ function AddChapter() {
 
                 if (response.ok) {
                     alert('Chapter added successfully!');
-                    navigate(`/admin/add-section`, { state: {eTextbookID: eTextbookID, chapterID: chapter.chapterID, chapterTitle: chapter.chapterTitle} });
+                    navigate(`/${role}/add-section`, { state: {eTextbookID: eTextbookID, chapterID: chapter.chapterID, chapterTitle: chapter.chapterTitle} });
                 } else {
                     const errorData = await response.json();
                     setError(errorData.error || 'Failed to add chapter');
@@ -46,10 +47,10 @@ function AddChapter() {
             }
         } else if (option === 2) {
             // Go back to the Create E-textbook page and discard input
-            navigate(`/admin/create-etextbook`, { state: { eTextbookID, title } });
+            navigate(-1);
         } else if (option === 3) {
             // Go to the Admin's landing page
-            navigate('/dashboard/admin');
+            navigate(`/dashboard/${role}`);
         }
     };
 

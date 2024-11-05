@@ -7,6 +7,8 @@ function AddContentBlockSelection() {
     const location = useLocation();
     const {eTextbookID, chapterID, sectionID, sectionTitle } = location.state || {};
 
+    const role = localStorage.getItem('role');
+
     const handleOptionSelection = (type) => {
         if (!contentBlockID) {
             alert('Please enter Content Block ID');
@@ -36,7 +38,7 @@ function AddContentBlockSelection() {
             <button onClick={() => handleOptionSelection('activity')}>Add Activity</button>
             <br /><br />
             <button onClick={() => navigate(-1)}>Go Back</button>
-            <button onClick={() => navigate('/dashboard/admin')}>Landing Page</button>
+            <button onClick={() => navigate(`/dashboard/${role}`)}>Landing Page</button>
         </div>
     );
 }
