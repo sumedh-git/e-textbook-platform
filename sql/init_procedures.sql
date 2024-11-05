@@ -43,3 +43,33 @@ BEGIN
     END IF;
 
 END
+
+/&/
+
+-- Create a stored procedure to check the end date of a course
+CREATE PROCEDURE check_end_date(IN p_course_id VARCHAR(20))
+BEGIN
+    DECLARE v_end_date DATE;
+    -- Get the EndDate of the specified course
+    SELECT EndDate INTO v_end_date
+    FROM Courses
+    WHERE CourseID = p_course_id;
+    
+    -- Check if the EndDate has passed
+    IF CURDATE() > v_end_date THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Cannot edit course after the end date';
+    END IF;
+END
+
+/&/
+
+-- Create a trigger to call the check_end_date procedure before updating a course
+
+CREATE TRIGGER before_course_update
+BEFORE UPDATE ON Courses
+FOR EACH ROW
+BEGIN
+    -- Call the stored procedure to check if editing is allowed
+    CALL check_end_date(OLD.CourseID);
+END
