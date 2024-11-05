@@ -16,7 +16,7 @@ def go_to_active_course():
     course = get_ta_active_course(user_id, course_id)
 
     if course:
-        return jsonify({"message": "Valid Course ID"}), 200
+        return jsonify({"message": "Valid Course ID", "course_id": course[0], "etextbook_id": course[1]}), 200
     else:
         return jsonify({"error": "Invalid Course ID"}), 404
 

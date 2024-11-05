@@ -165,7 +165,7 @@ def add_chapter(data):
     
     except Exception as e:
         connection.rollback()
-        return False, str(e), None
+        return False, str(e)
     
     finally:
         cursor.close()
@@ -409,14 +409,16 @@ def get_ta_active_course(user_id, course_id):
     cursor = connection.cursor()
     
     query = """
-        SELECT ac.CourseID FROM ActiveCourses ac
+        SELECT ac.CourseID, c.ETextbookID
+        FROM ActiveCourses ac
+        JOIN CourseTAs ta ON ac.CourseID = ta.CourseID
         JOIN Courses c ON ac.CourseID = c.CourseID
-        WHERE ac.CourseID = %s AND c.TAID = %s
+        WHERE ac.CourseID = %s AND ta.TAID = %s
     """
 
     cursor.execute(query, (course_id, user_id))
     course = cursor.fetchone()
-
+    
     cursor.close()
     connection.close()
     return course
