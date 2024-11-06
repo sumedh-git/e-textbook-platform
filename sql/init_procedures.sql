@@ -121,6 +121,10 @@ BEGIN
         SET Capacity = Capacity - 1
         WHERE CourseID = in_CourseID;
         
+        -- Insert notification entry for the student
+        INSERT INTO Notifications (StudentID, Msg)
+        VALUES (in_StudentID, CONCAT("Enrolled in ", in_CourseID));
+        
         -- Return success message
         SELECT "Enrollment approved successfully." AS result_message;
     ELSE
