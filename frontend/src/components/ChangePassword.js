@@ -50,7 +50,7 @@ function ChangePassword() {
         setCurrentPassword("");
         setNewPassword("");
         alert("Password changed successfully!");
-        navigate(-1);
+        navigate(`/dashboard/${role}`);
       }
     } catch (error) {
       setErrorMessage("An unexpected error occurred.");
@@ -58,7 +58,7 @@ function ChangePassword() {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(`/dashboard/${role}`); // Navigate back to the previous page
   };
 
   return (

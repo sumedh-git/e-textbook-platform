@@ -32,7 +32,7 @@ function FacultyAddTa() {
 
             if (response.ok) {
                 alert('TA added successfully');
-                navigate(-1);
+                navigate(`/faculty/active-course`);
             } else {
                 setErrorMessage(data.error || "Failed to add TA");
             }
@@ -42,7 +42,7 @@ function FacultyAddTa() {
     };
 
     const handleCancel = () => {
-        navigate(-1);  // Navigate back to the previous page
+        navigate(`/faculty/active-course`);  // Navigate back to the previous page
     };
 
     return (

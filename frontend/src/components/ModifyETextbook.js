@@ -43,7 +43,7 @@ function ModifyETextbook() {
         } else if (option === 3) {
             // Clear input and Go Back to Admin's previous page
             setETextbookID('');
-            navigate(-1);
+            navigate(`/dashboard/${role}`);
         } else if (option === 4) {
             navigate(`/dashboard/${role}`);
         }

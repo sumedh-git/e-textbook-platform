@@ -9,6 +9,7 @@ function ModifyContentBlock() {
     const [error, setError] = useState(null);
 
     const userID = localStorage.getItem('userID');
+    const role = localStorage.getItem('role');
 
     const handleSubmit = async () => {
         if (!contentData) {
@@ -32,7 +33,7 @@ function ModifyContentBlock() {
             });
             if (response.ok) {
                 alert('Content block modified successfully!');
-                navigate(-1); // Go back to ModifyContentBlock
+                navigate(`/admin/content-block-selection`); // Go back to ModifyContentBlock
             } else {
                 const data = await response.json();
                 setError(data.error || 'Failed to update content block.');
@@ -61,7 +62,7 @@ function ModifyContentBlock() {
                 <br />
 
                 <button type="button" onClick={handleSubmit}>Add {type}</button>
-                <button type="button" onClick={() => navigate(-1)}>Go Back</button>
+                <button type="button" onClick={() => navigate(`/admin/content-block-selection`)}>Go Back</button>
             </form>
         </div>
     );

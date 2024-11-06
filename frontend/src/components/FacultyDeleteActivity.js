@@ -12,6 +12,7 @@ function FacultyDeleteActivity() {
     const [activityID, setActivityID] = useState('');
 
     const userID = localStorage.getItem('userID');
+    const role = localStorage.getItem('role');
 
     const handleSave = async () => {
         try {
@@ -35,7 +36,7 @@ function FacultyDeleteActivity() {
     };
 
     const handleCancel = () => {
-        navigate(-1); // Go back to the previous page
+        navigate(`/${role}/modify-content-block`); // Go back to the previous page
     };
 
     return (

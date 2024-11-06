@@ -59,7 +59,7 @@ function ModifyContentBlockSelection() {
             <button onClick={() => handleOptionSelection('image')}>Add Picture</button>
             <button onClick={() => handleOptionSelection('activity')}>Add Activity</button>
             <br /><br />
-            <button onClick={() => navigate(-1)}>Go Back</button>
+            <button onClick={() => navigate(`/admin/modify-section`)}>Go Back</button>
             <button onClick={() => navigate('/dashboard/admin')}>Landing Page</button>
         </div>
     );

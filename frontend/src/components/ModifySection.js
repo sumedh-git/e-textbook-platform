@@ -53,7 +53,7 @@ function ModifySection() {
         } else if (option === 2) {
             navigate('/admin/modify-content-block-selection', { state: formData });
         } else if (option === 3) {
-            navigate(-1);  // Go back to previous page
+            navigate(`/${role}/modify-chapter`);  // Go back to previous page
         } else if (option === 4) {
             navigate(`/dashboard/${role}`);  // Go to admin landing page
         }

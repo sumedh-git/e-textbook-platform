@@ -106,7 +106,7 @@ function FacultyModifyContentBlock() {
                     <ListGroup.Item action onClick={() => handleMenuAction("AddActivity")}>
                         7. Add Activity
                     </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => navigate(-1)}>
+                    <ListGroup.Item action onClick={() => navigate(`/faculty/modify-section`)}>
                         8. Go Back
                     </ListGroup.Item>
                 </ListGroup>

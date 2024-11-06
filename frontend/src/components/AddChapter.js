@@ -47,7 +47,7 @@ function AddChapter() {
             }
         } else if (option === 2) {
             // Go back to the Create E-textbook page and discard input
-            navigate(-1);
+            navigate(`/${role}/create-etextbook`);
         } else if (option === 3) {
             // Go to the Admin's landing page
             navigate(`/dashboard/${role}`);

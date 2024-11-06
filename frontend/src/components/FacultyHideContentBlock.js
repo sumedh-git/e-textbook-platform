@@ -32,7 +32,7 @@ function FacultyHideContentBlock() {
     };
 
     const handleCancel = () => {
-        navigate(-1); // Go back to the previous page
+        navigate(`/faculty/modify-content-block`); // Go back to the previous page
     };
 
     return (

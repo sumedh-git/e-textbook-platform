@@ -10,7 +10,8 @@ function CreateFaculty() {
     });
 
     const navigate = useNavigate();
-
+    const role = localStorage.getItem('role');
+    
     const handleChange = (e) => {
         setFaculty({ ...faculty, [e.target.name]: e.target.value });
     };
@@ -32,7 +33,7 @@ function CreateFaculty() {
     };
 
     const handleGoBack = () => {
-        navigate(-1);  // Navigate back to the previous page
+        navigate(`/dashboard/${role}`);  // Navigate back to the previous page
     };
 
     return (

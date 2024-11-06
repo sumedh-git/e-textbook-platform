@@ -100,7 +100,7 @@ function FacultyEvaluationCourse() {
           <ListGroup.Item action onClick={() => handleMenuAction("Modify Chapters")}>
             2. Modify Chapters
           </ListGroup.Item>
-          <ListGroup.Item action onClick={() => navigate(-1)}>
+          <ListGroup.Item action onClick={() => navigate(`/dashboard/faculty`)}>
             3. Go Back
           </ListGroup.Item>
         </ListGroup>

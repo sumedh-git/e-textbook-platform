@@ -31,7 +31,7 @@ function AddActivity() {
             <br />
             <h3>Menu</h3>
             <button onClick={handleAddQuestion}>Add Question</button>
-            <button onClick={() => navigate(-1)}>Go Back</button>
+            <button onClick={() => navigate(`/${role}/add-content-block-selection`)}>Go Back</button>
             <button onClick={() => navigate(`/dashboard/${role}`)}>Landing Page</button>
         </div>
     );

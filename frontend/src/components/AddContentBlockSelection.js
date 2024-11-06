@@ -37,7 +37,7 @@ function AddContentBlockSelection() {
             <button onClick={() => handleOptionSelection('image')}>Add Picture</button>
             <button onClick={() => handleOptionSelection('activity')}>Add Activity</button>
             <br /><br />
-            <button onClick={() => navigate(-1)}>Go Back</button>
+            <button onClick={() => navigate(`/${role}/add-section`)}>Go Back</button>
             <button onClick={() => navigate(`/dashboard/${role}`)}>Landing Page</button>
         </div>
     );

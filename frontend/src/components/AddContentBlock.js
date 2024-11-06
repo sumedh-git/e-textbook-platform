@@ -35,7 +35,7 @@ function AddContentBlock() {
             const data = await response.json();
             if (response.ok) {
                 alert(`${type} content added successfully!`);
-                navigate(-1); // Go back to the selection page
+                navigate(`/${role}/add-content-block-selection`); // Go back to the selection page
             } else {
                 setError(data.error || 'Failed to add content block');
             }

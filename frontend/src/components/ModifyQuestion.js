@@ -60,7 +60,7 @@ function ModifyQuestion() {
             const data = await response.json();
             if (response.ok) {
                 alert('Question and activity added successfully!');
-                navigate(-1);  // Go back to Add Activity page
+                navigate(`/${role}/add-activity`);  // Go back to Add Activity page
             } else {
                 setError(data.error || 'Failed to add question');
             }

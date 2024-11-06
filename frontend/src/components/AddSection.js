@@ -51,7 +51,7 @@ function AddSection() {
             }
         } else if (option === 2) {
             // Go back to the Add Chapter page
-            navigate(`/admin/add-chapter`, { state: { chapterID, chapterTitle } });
+            navigate(`/${role}/add-chapter`, { state: { chapterID, chapterTitle } });
         } else if (option === 3) {
             // Go to the Admin's landing page
             navigate(`/dashboard/${role}`);

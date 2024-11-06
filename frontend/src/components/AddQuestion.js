@@ -60,7 +60,7 @@ function AddQuestion() {
             const data = await response.json();
             if (response.ok) {
                 alert('Question and activity added successfully!');
-                navigate(-1);  // Go back to Add Activity page
+                navigate(`/${role}/add-activity`);  // Go back to Add Activity page
             } else {
                 setError(data.error || 'Failed to add question');
             }
@@ -126,7 +126,7 @@ function AddQuestion() {
                 ))}
 
                 <button type="button" onClick={handleSubmit}>Save</button>
-                <button type="button" onClick={() => navigate(-1)}>Cancel</button>
+                <button type="button" onClick={() => navigate(`/${role}/add-activity`)}>Cancel</button>
                 <button type="button" onClick={() => navigate(`/dashboard/${role}`)}>Landing Page</button>
             </form>
         </div>

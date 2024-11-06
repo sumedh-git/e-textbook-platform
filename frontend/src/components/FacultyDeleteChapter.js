@@ -34,7 +34,7 @@ function FacultyDeleteChapter() {
     };
 
     const handleCancel = () => {
-        navigate(-1); // Go back to the previous page
+        navigate(`/faculty/modify-chapter`); // Go back to the previous page
     };
 
     return (

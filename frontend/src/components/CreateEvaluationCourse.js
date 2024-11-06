@@ -60,7 +60,7 @@ function CreateEvaluationCourse() {
                 <input type="date" name="endDate" value={course.endDate} onChange={handleChange} required />
 
                 <button type="button" onClick={handleSubmit}>Save</button>
-                <button type="button" onClick={() => navigate(-1)}>Cancel</button>
+                <button type="button" onClick={() => navigate(`/dashboard/${role}`)}>Cancel</button>
                 <button type="button" onClick={() => navigate('/dashboard/admin')}>Landing Page</button>
             </form>
         </div>

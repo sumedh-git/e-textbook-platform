@@ -34,7 +34,7 @@ function FacultyDeleteSection() {
     };
 
     const handleCancel = () => {
-        navigate(-1); // Go back to the previous page
+        navigate(`/faculty/modify-section`); // Go back to the previous page
     };
 
     return (
