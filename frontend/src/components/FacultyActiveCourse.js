@@ -37,7 +37,9 @@ function FacultyActiveCourse() {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem("courseID", courseID); // Save CourseID in localStorage
+        localStorage.setItem("etextbook_id", data.etextbook_id);
         setErrorMessage("");
+        
         return data.etextbook_id;
       }else{
         setErrorMessage(data.error || "Invalid Course ID.");

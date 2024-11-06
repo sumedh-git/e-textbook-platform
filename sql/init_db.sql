@@ -183,7 +183,6 @@ CREATE TABLE CourseTAs (
 CREATE TABLE Enrollments (
     StudentID VARCHAR(10),
     CourseID VARCHAR(20),
-    WaitlistNumber INT,
     EnrollmentStatus ENUM('Pending', 'Enrolled'),
     PRIMARY KEY (StudentID, CourseID),
 
@@ -331,23 +330,23 @@ INSERT INTO ActiveCourses (CourseID, Token, Capacity) VALUES
 ('NCSUOganCSC540F24', 'STUKZT', 50),
 ('NCSUSaraCSC326F24', 'LRUFND', 100);
 
-INSERT INTO Enrollments (StudentID, CourseID, WaitlistNumber, EnrollmentStatus) VALUES
-('ErPe1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
-('ErPe1024', 'NCSUOganCSC540F24', NULL, 'Enrolled'),
-('AlAr1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
-('BoTe1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
-('LiGa1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
-('LiGa1024', 'NCSUOganCSC540F24', NULL, 'Enrolled'),
-('ArMo1024', 'NCSUOganCSC540F24', NULL, 'Enrolled'),
-('ArMo1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
--- ('SiHa1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
-('FiWi1024', 'NCSUSaraCSC326F24', NULL, 'Enrolled'),
--- ('LeMe1024', 'NCSUOganCSC440F24', NULL, 'Enrolled'),
-('FiWi1024', 'NCSUOganCSC440F24', NULL, 'Pending'),
--- ('LeMe1024', 'NCSUOganCSC540F24', NULL, 'Pending'),
-('AlAr1024', 'NCSUOganCSC540F24', NULL, 'Pending'),
--- ('SiHa1024', 'NCSUOganCSC540F24', NULL, 'Pending'),
-('FiWi1024', 'NCSUOganCSC540F24', NULL, 'Pending');
+INSERT INTO Enrollments (StudentID, CourseID, EnrollmentStatus) VALUES
+('ErPe1024', 'NCSUOganCSC440F24', 'Enrolled'),
+('ErPe1024', 'NCSUOganCSC540F24', 'Enrolled'),
+('AlAr1024', 'NCSUOganCSC440F24',  'Enrolled'),
+('BoTe1024', 'NCSUOganCSC440F24',  'Enrolled'),
+('LiGa1024', 'NCSUOganCSC440F24',  'Enrolled'),
+('LiGa1024', 'NCSUOganCSC540F24',  'Enrolled'),
+('ArMo1024', 'NCSUOganCSC540F24',  'Enrolled'),
+('ArMo1024', 'NCSUOganCSC440F24',  'Enrolled'),
+-- ('SiHa1024', 'NCSUOganCSC440F24',  'Enrolled'),
+('FiWi1024', 'NCSUSaraCSC326F24',  'Enrolled'),
+-- ('LeMe1024', 'NCSUOganCSC440F24',  'Enrolled'),
+('FiWi1024', 'NCSUOganCSC440F24',  'Pending'),
+-- ('LeMe1024', 'NCSUOganCSC540F24',  'Pending'),
+('AlAr1024', 'NCSUOganCSC540F24',  'Pending'),
+-- ('SiHa1024', 'NCSUOganCSC540F24',  'Pending'),
+('FiWi1024', 'NCSUOganCSC540F24', 'Pending');
 
 
 INSERT INTO CourseTAs (CourseID, TAID) VALUES

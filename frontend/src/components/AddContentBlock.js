@@ -64,7 +64,7 @@ function AddContentBlock() {
                 <br />
 
                 <button type="button" onClick={handleSubmit}>Add {type}</button>
-                <button type="button" onClick={() => navigate(`/${role}/add-content-block-selection`)}>Go Back</button>
+                <button type="button" onClick={() => navigate(-1)}>Go Back</button>
             </form>
         </div>
     );
