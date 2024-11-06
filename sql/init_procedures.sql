@@ -18,6 +18,10 @@ DROP PROCEDURE IF EXISTS DeleteActivityByFacultyOrTA;
 
 /&/
 
+DROP PROCEDURE IF EXISTS ApproveEnrollment;
+
+/&/
+
 CREATE PROCEDURE DeleteSectionByFacultyOrTA (
     IN in_userID VARCHAR(10),
     IN in_etextbookID VARCHAR(10),
@@ -228,4 +232,41 @@ FOR EACH ROW
 BEGIN
     -- Call the stored procedure to check if editing is allowed
     CALL check_end_date(OLD.CourseID);
+END
+
+/&/
+
+
+CREATE PROCEDURE ApproveEnrollment(
+    IN in_StudentID VARCHAR(10),
+    IN in_CourseID VARCHAR(20)
+)
+BEGIN
+    DECLARE courseCapacity INT;
+
+    -- Retrieve the current capacity of the specific course
+    SELECT Capacity INTO courseCapacity
+    FROM ActiveCourses
+    WHERE CourseID = in_CourseID;
+
+    -- Check if the course has available capacity
+    IF courseCapacity > 0 THEN
+        -- Update enrollment status to 'Enrolled' for the specified student and course
+        UPDATE Enrollments
+        SET EnrollmentStatus = 'Enrolled'
+        WHERE StudentID = in_StudentID AND CourseID = in_CourseID;
+
+        -- Decrease the capacity of the specific course by 1
+        UPDATE ActiveCourses
+        SET Capacity = Capacity - 1
+        WHERE CourseID = in_CourseID;
+        
+        -- Return success message
+        SELECT "Enrollment approved successfully." AS result_message;
+    ELSE
+        -- If no capacity, return an error message
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Course is at full capacity.';
+    END IF;
+
 END

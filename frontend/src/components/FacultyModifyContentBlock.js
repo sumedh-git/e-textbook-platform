@@ -27,6 +27,8 @@ function FacultyModifyContentBlock() {
 
     // Mapping of actions to routes
     const actionRouteMap = {
+        AddText : "/faculty/add-content-block",
+        AddPicture : "/faculty/add-content-block",
         HideContentBlock: "/faculty/hide-content-block",
         DeleteContentBlock: "/faculty/delete-content-block",
         HideActivity: "/faculty/hide-activity",
