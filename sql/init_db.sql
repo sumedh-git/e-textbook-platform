@@ -82,7 +82,7 @@ CREATE TABLE ContentBlocks (
     ETextbookID VARCHAR(10),
     ChapterID VARCHAR(10),
     SectionID VARCHAR(10),
-    BlockType VARCHAR(8) CHECK (BlockType IN ('text', 'picture', 'activity')) NOT NULL,
+    BlockType VARCHAR(8) NOT NULL CHECK (BlockType IN ('text', 'picture', 'activity')),
     Content TEXT NOT NULL,
     CreatedBy VARCHAR(10),
     IsHidden BOOLEAN DEFAULT FALSE,
@@ -192,6 +192,16 @@ CREATE TABLE Enrollments (
         ON UPDATE CASCADE,
     FOREIGN KEY (CourseID) REFERENCES ActiveCourses(CourseID)
         ON DELETE CASCADE 
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE Notifications (
+    NotificationID INT AUTO_INCREMENT,
+    StudentID VARCHAR(10),
+    Msg TEXT,
+    PRIMARY KEY (NotificationID),
+    FOREIGN KEY (StudentID) REFERENCES Students(UserID)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
