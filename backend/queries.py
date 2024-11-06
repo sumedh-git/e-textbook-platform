@@ -1423,3 +1423,176 @@ def get_student_notifications(student_user_id):
     finally:
         cursor.close()
         conn.close()
+
+def execute_query(option):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Define the queries based on the option
+        if option == 1:
+            query = """
+            SELECT ETextbookID, COUNT(*) AS NumberOfSections
+            FROM Sections
+            WHERE ChapterID = 'chap01'
+            GROUP BY ETextbookID;
+            """
+        elif option == 2:
+            query = """
+            SELECT 
+                CONCAT(U.FirstName, ' ', U.LastName) AS Name,
+                'Faculty' AS Role
+            FROM Faculties F
+            JOIN Users U ON F.UserID = U.UserID
+
+            UNION ALL
+
+            SELECT 
+                CONCAT(U.FirstName, ' ', U.LastName) AS Name,
+                'TA' AS Role
+            FROM TAs T
+            JOIN CourseTAs CT ON T.UserID = CT.TAID
+            JOIN Users U ON T.UserID = U.UserID;
+            """
+        elif option == 3:
+            query = """
+            SELECT 
+                C.CourseID,
+                CONCAT(U.FirstName, ' ', U.LastName) AS FacultyName,
+                COUNT(E.StudentID) AS TotalStudents
+            FROM Courses C
+            JOIN ActiveCourses AC ON C.CourseID = AC.CourseID
+            JOIN Faculties F ON C.FacultyID = F.UserID
+            JOIN Users U ON F.UserID = U.UserID
+            LEFT JOIN Enrollments E ON C.CourseID = E.CourseID AND E.EnrollmentStatus = 'Enrolled'
+            GROUP BY C.CourseID, FacultyName;
+            """
+        elif option == 4:
+            query = """
+            SELECT 
+                CourseID,
+                COUNT(StudentID) AS WaitingListCount
+            FROM Enrollments
+            WHERE EnrollmentStatus = 'Pending'
+            GROUP BY CourseID
+            ORDER BY WaitingListCount DESC
+            LIMIT 1;
+            """
+        elif option == 5:
+            query = """
+            SELECT 
+                s.SectionID,  -- Add SectionID to the selection
+                s.Title AS SectionTitle,
+                cb.BlockID,
+                cb.BlockType,
+                cb.Content
+            FROM 
+                Sections s
+            JOIN 
+                ContentBlocks cb ON s.ETextbookID = cb.ETextbookID 
+                AND s.ChapterID = cb.ChapterID 
+                AND s.SectionID = cb.SectionID
+            WHERE 
+                s.ETextbookID = '101' 
+                AND s.ChapterID = 'chap02'
+            ORDER BY 
+                s.SectionID, cb.BlockID;
+            """
+        elif option == 6:
+            query = """
+            SELECT 
+                OptionText AS IncorrectOption,
+                Explanation AS IncorrectExplanation
+            FROM 
+                (
+                    SELECT 
+                        Option1 AS OptionText, 
+                        Option1Explanation AS Explanation, 
+                        1 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        Option2 AS OptionText, 
+                        Option2Explanation AS Explanation, 
+                        2 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        Option3 AS OptionText, 
+                        Option3Explanation AS Explanation, 
+                        3 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        Option4 AS OptionText, 
+                        Option4Explanation AS Explanation, 
+                        4 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                ) AS AllOptions
+            WHERE 
+                OptionIdx != (SELECT AnswerIdx FROM Questions 
+                              WHERE 
+                                ETextbookID = '101' 
+                                AND ChapterID = 'chap01'
+                                AND SectionID = 'Sec02'
+                                AND ActivityID = 'ACT0'
+                                AND QuestionID = 'Q2');
+            """
+        elif option == 7:
+            query = """
+            SELECT DISTINCT c1.ETextbookID
+            FROM Courses c1
+            JOIN Courses c2 ON c1.ETextbookID = c2.ETextbookID
+            WHERE c1.Type = 'Active'
+              AND c2.Type = 'Evaluation'
+              AND c1.FacultyID != c2.FacultyID;
+            """
+        else:
+            return False, "Invalid query option."
+
+        # Execute the query
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        print(result)
+        if not result:
+            return "No data found for the selected query."
+
+        return result
+
+    except Exception as e:
+        print(f"Error executing query {option}: {e}")
+        return False, "An error occurred while executing the query."
+
+    finally:
+        cursor.close()

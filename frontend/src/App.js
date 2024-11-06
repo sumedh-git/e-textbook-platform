@@ -52,6 +52,7 @@ import FacultyDeleteActivity from "./components/FacultyDeleteActivity";
 import FacultyViewWorklist from "./components/FacultyViewWorklist";
 import FacultyApproveEnrollment from "./components/FacultyApproveEnrollment";
 import ViewNotifications from "./components/ViewNotifications";
+import ExecuteQuery from "./components/ExecuteQuery";
 
 function App() {
   return (
@@ -173,6 +174,11 @@ function App() {
         <Route
           path="/student/view-notifications"
           element={<ViewNotifications />}
+        />
+
+        <Route
+          path="/queries"
+          element={<ExecuteQuery />}
         />
       </Routes>
     </Router>
