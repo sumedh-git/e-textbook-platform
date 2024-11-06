@@ -6,7 +6,9 @@ from queries import (
     create_enrollment,
     get_current_enrollment_count_by_course_id,
     create_user,
-    get_students_textbooks
+    get_students_textbooks,
+    check_textbook_accessible_by_student,
+    get_content_blocks
 )
 
 student_bp = Blueprint('student', __name__)
@@ -113,3 +115,48 @@ def get_student_content():
         for et in textbooks.values()
     ]
     return jsonify(result)
+
+
+@student_bp.route('/content-blocks', methods=['GET'])
+def view_content_block():
+    data = {}
+    student_user_id = request.args.get('student-user-id')
+    eTextbook_id = request.args.get('eTextBook-id')
+    chapter_id = request.args.get('chapter-id')
+    section_id = request.args.get('section-id')
+    print(student_user_id)
+    print(eTextbook_id)
+    print(chapter_id)
+    print(student_user_id)
+    if not all([student_user_id,eTextbook_id,chapter_id,section_id]):
+        print("Missing required query parameters")
+        return jsonify({"error": "Missing required query parameters."}), 400
+
+    data["student_user_id"]=student_user_id
+    data["eTextbook_id"]=eTextbook_id
+    
+    accessible = check_textbook_accessible_by_student(data) 
+    if not accessible:
+        # Return error if the student is not enrolled in the course with the given ETextbookID
+        print("Student is not enrolled in a course with the specified textbook ID.")
+        return jsonify({"error": "Student is not enrolled in a course with the specified textbook ID."}), 403
+ 
+    data["chapter_id"]=chapter_id
+    data["section_id"]=section_id
+ 
+    content_blocks=get_content_blocks(data)
+    if not content_blocks:
+        print("{message: No visible content blocks found for the specified textbook.}")
+        return jsonify({"message": "No visible content blocks found for the specified textbook."}), 404
+
+    print(content_blocks)
+    
+    formatted_content_blocks = [
+    {
+        'blockID': block[0],
+        'type': block[1],
+        'content': block[2]
+    }
+    for block in content_blocks
+]
+    return jsonify(formatted_content_blocks),200

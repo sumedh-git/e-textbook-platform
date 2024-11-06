@@ -21,7 +21,7 @@ function StudentEnroll() {
         });
         const data = await response.json();
         if (response.ok) {
-            alert('Student enrolled successfully');
+            alert('Student added to waitlist successfully');
         } else {
             alert(data.error);
         }

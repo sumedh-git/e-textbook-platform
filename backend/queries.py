@@ -976,3 +976,50 @@ def get_students_textbooks(student_user_id):
     cursor.close()
     connection.close()
     return result
+
+def check_textbook_accessible_by_student(data):
+    student_user_id=data.get("student_user_id")
+    eTextbook_id=data.get("eTextbook_id")
+
+    if not all([student_user_id, eTextbook_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 1
+        FROM Enrollments e
+        JOIN Courses c ON e.CourseID = c.CourseID
+        WHERE e.StudentID = %s AND e.EnrollmentStatus = 'Enrolled'
+            AND c.ETextbookID = %s AND c.Type = 'Active';
+    """, (student_user_id, eTextbook_id))
+
+    result = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return result
+
+def get_content_blocks(data):
+    eTextbook_id=data.get("eTextbook_id")
+    chapter_id=data.get("chapter_id")
+    section_id=data.get("section_id")
+
+    if not all([eTextbook_id, chapter_id, section_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            cb.BlockID, 
+            cb.BlockType, 
+            cb.Content
+        FROM ContentBlocks cb
+        WHERE cb.ETextbookID = %s AND cb.ChapterID = %s AND cb.SectionID = %s AND cb.IsHidden = FALSE
+        ORDER BY cb.BlockID;
+    """, (eTextbook_id,chapter_id, section_id))
+
+    content_blocks = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return content_blocks

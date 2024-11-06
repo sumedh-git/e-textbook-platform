@@ -141,6 +141,23 @@ CREATE TABLE Questions (
     ON DELETE SET NULL
     ON UPDATE CASCADE
 );
+CREATE TABLE StudentActivity (
+    QuestionID VARCHAR(10),
+    ETextbookID VARCHAR(10),
+    ChapterID VARCHAR(10),
+    SectionID VARCHAR(10),
+    BlockID VARCHAR(10),
+    ActivityID VARCHAR(10),
+    StudentID VARCHAR(10),
+    Points   INT NOT NULL CHECK(Points IN (0,1)) DEFAULT 0,
+    PRIMARY KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID, QuestionID, StudentID),
+    FOREIGN KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID) REFERENCES Activities(ETextbookID, ChapterID, SectionID, BlockID, ActivityID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (StudentID) REFERENCES Students(UserID)
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+);
 
 CREATE TABLE Courses (
     CourseID VARCHAR(20) PRIMARY KEY,
@@ -198,41 +215,40 @@ CREATE TABLE Enrollments (
 
 -- CREATE Statements done
 
--- INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
--- VALUES ('A001', 'Alice', 'Smith', 'alice@example.com', 'password123'),
---        ('F001', 'John', 'Doe', 'john.doe@example.com', 'password123'),
---        ('S001', 'Jane', 'Doe', 'jane.doe@example.com', 'password123'),
---        ('S002', 'Ross', 'Geller', 'ross.geller@example.com', 'password123'),
---        ('T001', 'Mike', 'Johnson', 'mike.j@example.com', 'password123');
-
+INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
+VALUES ('A001', 'Alice', 'Smith', 'alice@example.com', 'password123'),
+       ('F001', 'John', 'Doe', 'john.doe@example.com', 'password123'),
+       ('S001', 'Jane', 'Doe', 'jane.doe@example.com', 'password123'),
+       ('S002', 'Ross', 'Geller', 'ross.geller@example.com', 'password123'),
+       ('T001', 'Mike', 'Johnson', 'mike.j@example.com', 'password123');
 
 INSERT INTO Admins (UserID)
 VALUES ('A001');  -- Alice Smith is an Admin    
 
--- INSERT INTO Faculties (UserID)
--- VALUES ('F001');  -- John Doe is a Faculty member
+INSERT INTO Faculties (UserID)
+VALUES ('F001');  -- John Doe is a Faculty member
 
--- INSERT INTO Students (UserID)
--- VALUES ('S001'), ("S002");  -- Jane Doe is a Student
+INSERT INTO Students (UserID)
+VALUES ('S001'), ("S002");  -- Jane Doe is a Student
 
 -- INSERT INTO TAs (UserID)
 -- VALUES ('T001');  -- Mike Johnson is a Student
 
 -- Inserting into ETextbooks
--- INSERT INTO ETextbooks (ETextbookID, CreatedBy, Title)
--- VALUES 
---     ("101", 'A001', 'Database Management Systems'),
---     ("102", 'A001', 'Fundamentals of Software Engineering'),
---     ("103", 'A001', 'Fundamentals of Machine Learning');
+INSERT INTO ETextbooks (ETextbookID, CreatedBy, Title)
+VALUES 
+    ("101", 'A001', 'Database Management Systems'),
+    ("102", 'A001', 'Fundamentals of Software Engineering'),
+    ("103", 'A001', 'Fundamentals of Machine Learning');
 
 -- Inserting into Courses
 
--- INSERT INTO Courses (CourseID, Title, FacultyID, TAID, StartDate, EndDate, Type, ETextbookID)
--- VALUES 
---     ('CS101', 'Database Systems', 'F001', "T001", '2024-01-10', '2024-05-15', 'Active', "101"),
---     ('CS102', 'Software Engineering', 'F001', "T001", '2024-01-15', '2024-05-20', 'Active', "102"),
---     ('CS103', 'Machine Learning', 'F001', "T001", '2024-02-01', '2024-06-01', 'Active', "103"),
---     ('CS104', 'Machine Learning Foundations', 'F001', "T001", '2024-03-01', '2024-07-01', 'Evaluation', "103");
+INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, ETextbookID)
+VALUES 
+    ('CS101', 'Database Systems', 'F001', '2024-01-10', '2024-05-15', 'Active', "101"),
+    ('CS102', 'Software Engineering', 'F001', '2024-01-15', '2024-05-20', 'Active', "102"),
+    ('CS103', 'Machine Learning', 'F001', '2024-02-01', '2024-06-01', 'Active', "103"),
+    ('CS104', 'Machine Learning Foundations', 'F001', '2024-03-01', '2024-07-01', 'Evaluation', "103");
 
 -- Inserting into ActiveCourses
 INSERT INTO ActiveCourses (CourseID, Token, Capacity)
@@ -240,7 +256,6 @@ VALUES
     ('CS101', 'A1B2C3D', 30),
     ('CS102', 'D4E5F6G', 25),
     ('CS103', 'H7I8J9K', 20);
-
 
 
 INSERT INTO Enrollments (StudentID, CourseID, EnrollmentStatus)
@@ -278,6 +293,8 @@ VALUES
 INSERT INTO ContentBlocks (ETextbookID,ChapterID,SectionID,BlockID,BlockType,Content,CreatedBy)
 VALUES
 ('101',	'chap01',	'Sec01',	'Block01',	'text',	'A Database Management System (DBMS) is software that enables users to efficiently create, manage, and manipulate databases. It serves as an interface between the database and end users, ensuring data is stored securely, retrieved accurately, and maintained consistently. Key features of a DBMS include data organization, transaction management, and support for multiple users accessing data concurrently.', 'A001'),
+('101',	'chap01',	'Sec01',	'Block02',	'text',	'Duplicated: A Database Management System (DBMS) is software that enables users to efficiently create, manage, and manipulate databases. It serves as an interface between the database and end users, ensuring data is stored securely, retrieved accurately, and maintained consistently. Key features of a DBMS include data organization, transaction management, and support for multiple users accessing data concurrently.', 'A001'),
+('101',	'chap01',	'Sec02',	'Block02',	'text',	'Duplicated: A Database Management System (DBMS) is software that enables users to efficiently create, manage, and manipulate databases. It serves as an interface between the database and end users, ensuring data is stored securely, retrieved accurately, and maintained consistently. Key features of a DBMS include data organization, transaction management, and support for multiple users accessing data concurrently.', 'A001'),
 ('101',	'chap01',	'Sec02',	'Block01',	'activity',	'ACT0', 'A001'),
 ('101',	'chap02',	'Sec01',	'Block01',	'text',	'DBMS systems provide structured storage and ensure that data is accessible through queries using languages like SQL. They handle critical tasks such as maintaining data integrity, enforcing security protocols, and optimizing data retrieval, making them essential for both small-scale and enterprise-level applications. Examples of popular DBMS include MySQL, Oracle, and PostgreSQL.', 'A001'),
 ('101',	'chap02',	'Sec02',	'Block01',	'image',	'sample.png', 'A001'),
