@@ -16,6 +16,9 @@ import ChangePassword from './components/ChangePassword'
 import FacultyActiveCourse from './components/FacultyActiveCourse'
 import FacultyEvaluationCourse from './components/FacultyEvaluationCourse'
 import FacultyViewCourses from './components/FacultyViewCourses'
+import StudentLogin  from './components/StudentLogin';
+import StudentEnroll from './components/StudentEnroll';
+import StudentDashboard from './components/Student Dashboard';
 import AddQuestion from './components/AddQuestion';
 import ModifyETextbook from './components/ModifyETextbook';
 import ModifyChapter from './components/ModifyChapter';
@@ -29,6 +32,9 @@ import TAViewCourses from "./components/TAViewCourses";
 import TAActiveCourse from "./components/TAActiveCourse";
 import TAViewStudents from "./components/TAViewStudents";
 import FacultyViewStudents from "./components/FacultyViewStudents";
+import StudentViewSection from "./components/StudentViewSection";
+import StudentViewBlock from "./components/StudentViewBlock";
+import StudentViewParticipationActivityPoints from "./components/StudentViewParticipationActivityPoints";
 import CreateActiveCourse from './components/CreateActiveCourse';
 import CreateEvaluationCourse from './components/CreateEvaluationCourse';
 import FacultyModifyChapter from './components/FacultyModifyChapter'
@@ -73,6 +79,12 @@ function App() {
                 
                 <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
                 <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/student/login" element={<StudentLogin />} />
+                <Route path="/student/enroll" element={<StudentEnroll />} />
+                <Route path="/dashboard/student" element={<StudentDashboard />} />
+                <Route path="/student/view-section" element={<StudentViewSection />} />
+                <Route path="/student/view-block" element={<StudentViewBlock />} />
+                <Route path="/student/view-participation-activity-points" element={<StudentViewParticipationActivityPoints />} />
                 <Route path="/faculty/active-course" element={<FacultyActiveCourse />} />
                 <Route path="/faculty/evaluation-course" element={<FacultyEvaluationCourse />} />
                 <Route path="/faculty/modify-chapter" element={<FacultyModifyChapter />} />
