@@ -44,11 +44,12 @@ import FacultyDeleteContentBlock from "./components/FacultyDeleteContentBlock";
 import FacultyHideActivity from "./components/FacultyHideActivity";
 import FacultyDeleteActivity from "./components/FacultyDeleteActivity";
 import TAModifyChapter from "./components/TAModifyChapter";
-import TAHideChapter from "./components/TAHideChapter";
 import TADeleteChapter from "./components/TADeleteChapter";
 import TADeleteSection from "./components/TADeleteSection";
 import TADeleteContentBlock from "./components/TADeleteContentBlock";
 import TADeleteActivity from "./components/TADeleteActivity";
+import TAModifySection from "./components/TAModifySection";
+import TAModifyContentBlock from "./components/TAModifyContentBlock";
 
 function App() {
   return (
@@ -150,7 +151,6 @@ function App() {
         <Route path="/ta/active-course" element={<TAActiveCourse />} />
         <Route path="/ta/view-students" element={<TAViewStudents />} />
         <Route path="/ta/modify-chapter" element={<TAModifyChapter />} />
-        <Route path="/ta/hide-chapter" element={<TAHideChapter />} />
         <Route path="/ta/delete-chapter" element={<TADeleteChapter />} />
         <Route path="/ta/delete-section" element={<TADeleteSection />} />
         <Route
@@ -158,6 +158,11 @@ function App() {
           element={<TADeleteContentBlock />}
         />
         <Route path="/ta/delete-activity" element={<TADeleteActivity />} />
+        <Route path="/ta/modify-section" element={<TAModifySection />} />
+        <Route
+          path="/ta/modify-content-block"
+          element={<TAModifyContentBlock />}
+        />
       </Routes>
     </Router>
   );

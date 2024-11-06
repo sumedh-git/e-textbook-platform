@@ -36,16 +36,12 @@ function TAModifyChapter() {
     }
 
     if (option === 1) {
-      navigate("/ta/hide-chapter", { state: { eTextbookID, chapterID } });
-    } else if (option === 2) {
-      navigate("/ta/delete-chapter", { state: { eTextbookID, chapterID } });
-    } else if (option === 3) {
       navigate(`/${role}/add-section`, { state: { eTextbookID, chapterID } });
-    } else if (option === 4) {
+    } else if (option === 2) {
       navigate(`/${role}/modify-section`, {
         state: { eTextbookID, chapterID },
       });
-    } else if (option === 5) {
+    } else if (option === 3) {
       navigate(-1);
     }
   };
@@ -59,18 +55,12 @@ function TAModifyChapter() {
         <input type="text" value={chapterID} onChange={handleChange} required />
         <h3>Menu</h3>
         <button type="button" onClick={() => handleOption(1)}>
-          Hide Chapter
-        </button>
-        <button type="button" onClick={() => handleOption(2)}>
-          Delete Chapter
-        </button>
-        <button type="button" onClick={() => handleOption(3)}>
           Add New Section
         </button>
-        <button type="button" onClick={() => handleOption(4)}>
+        <button type="button" onClick={() => handleOption(2)}>
           Modify Section
         </button>
-        <button type="button" onClick={() => handleOption(5)}>
+        <button type="button" onClick={() => handleOption(3)}>
           Go Back
         </button>
       </form>

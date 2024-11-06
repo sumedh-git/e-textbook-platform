@@ -1,6 +1,6 @@
 # backend/routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from queries import get_ta_active_course, get_ta_courses, get_students_from_course, hide_chapter, delete_chapter, hide_section, delete_section, delete_activity_route
+from queries import get_ta_active_course, get_ta_courses, get_students_from_course, hide_chapter, delete_chapter, hide_section, delete_section, delete_activity
 
 ta_bp = Blueprint('ta', __name__)
 
