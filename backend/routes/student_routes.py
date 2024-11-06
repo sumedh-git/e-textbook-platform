@@ -8,7 +8,9 @@ from queries import (
     create_user,
     get_students_textbooks,
     check_textbook_accessible_by_student,
-    get_content_blocks
+    get_content_blocks,
+    get_question_query,
+    insert_or_update_points
 )
 
 student_bp = Blueprint('student', __name__)
@@ -160,3 +162,73 @@ def view_content_block():
     for block in content_blocks
 ]
     return jsonify(formatted_content_blocks),200
+
+@student_bp.route('/question', methods=['GET'])
+def get_activity_question():
+    data = {}
+    eTextbook_id = request.args.get('eTextBook-id')
+    chapter_id = request.args.get('chapter-id')
+    section_id = request.args.get('section-id')
+    activity_id = request.args.get('activity-id')
+    block_id = request.args.get('block-id')
+    
+    if not all([eTextbook_id,chapter_id,section_id, activity_id,block_id]):
+        print("Missing required query parameters")
+        return jsonify({"error": "Missing required query parameters."}), 400
+
+    data["eTextbook_id"]=eTextbook_id
+    data["chapter_id"]=chapter_id
+    data["section_id"]=section_id
+    data["activity_id"]=activity_id
+    data["block_id"]=block_id
+    
+    activity_content=get_question_query(data)
+    if not activity_content:
+        print("{message: No visible content blocks found for the specified textbook.}")
+        return jsonify({"message": "Error while finding activity content."}), 404
+    
+    (QuestionID,QuestionText,Option1,Option1Explanation,Option2,Option2Explanation,Option3,Option3Explanation,Option4,Option4Explanation,AnswerIdx) = activity_content[0]
+    
+    formatted_activity_content = {
+            'QuestionID': QuestionID,
+            'QuestionText': QuestionText,
+            'Option1': Option1,
+            'Option1Explanation': Option1Explanation,
+            'Option2': Option2,
+            'Option2Explanation': Option2Explanation,
+            'Option3': Option3,
+            'Option3Explanation': Option3Explanation,
+            'Option4': Option4,
+            'Option4Explanation': Option4Explanation,
+            'AnswerIdx': AnswerIdx
+    }
+    
+    return jsonify(formatted_activity_content),200
+
+@student_bp.route('/update-activity-points', methods=['POST'])
+def update_activity_points():
+    data = {}
+    eTextbook_id = request.args.get('eTextBook-id')
+    chapter_id = request.args.get('chapter-id')
+    section_id = request.args.get('section-id')
+    block_id = request.args.get('block-id')
+    activity_id = request.args.get('activity-id')
+    question_id = request.args.get('question-id')
+    student_user_id=request.get_json().get('studentUserID')
+    
+    if not all([eTextbook_id,chapter_id,section_id, activity_id,block_id, student_user_id]):
+        return jsonify({"error": "Missing required query parameters."}), 400
+
+    data["eTextbook_id"]=eTextbook_id
+    data["chapter_id"]=chapter_id
+    data["section_id"]=section_id
+    data["activity_id"]=activity_id
+    data["block_id"]=block_id
+    data["student_user_id"]=student_user_id
+    data["question_id"]=question_id
+    
+    success, message = insert_or_update_points(data)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": f"Failed to update score. {message}"}), 500

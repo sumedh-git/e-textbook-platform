@@ -1023,3 +1023,76 @@ def get_content_blocks(data):
     cursor.close()
     connection.close()
     return content_blocks
+
+def get_question_query(data):
+    eTextbook_id=data.get("eTextbook_id")
+    chapter_id=data.get("chapter_id")
+    section_id=data.get("section_id")
+    block_id=data.get("block_id")
+    activity_id=data.get("activity_id")
+
+    if not all([eTextbook_id, chapter_id, section_id,activity_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            QuestionID,
+            QuestionText,
+            Option1,
+            Option1Explanation,
+            Option2,
+            Option2Explanation,
+            Option3,
+            Option3Explanation,
+            Option4,
+            Option4Explanation,
+            AnswerIdx FROM Questions AS q
+        WHERE q.ETextbookID = %s AND q.ChapterID = %s AND q.SectionID = %s AND q.BlockID = %s AND q.ActivityID = %s;
+    """, (eTextbook_id,chapter_id, section_id,block_id,activity_id))
+
+    content_blocks = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return content_blocks
+
+
+def insert_or_update_points(data):
+    eTextbook_id = data.get('eTextbook_id')
+    chapter_id = data.get('chapter_id')
+    section_id = data.get('section_id')
+    block_id = data.get('block_id')
+    activity_id = data.get('activity_id')
+    question_id = data.get('question_id')
+    student_user_id = data.get('student_user_id')
+    
+    if not all([eTextbook_id, chapter_id, section_id,activity_id,block_id,student_user_id,question_id]):
+        return False, "All details are required"
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT Points 
+            FROM StudentActivity 
+            WHERE 
+            ETextbookID=%s AND 
+            ChapterID=%s AND 
+            SectionID=%s AND 
+            BlockID=%s AND 
+            ActivityID=%s AND 
+            QuestionID=%s AND
+            StudentID=%s;""", (eTextbook_id, chapter_id, section_id,block_id,activity_id,question_id,student_user_id))
+        result = cursor.fetchone()
+
+        if not result:
+            print("Insert a new score record if none exists")
+            cursor.execute("INSERT INTO StudentActivity VALUES (%s, %s,%s,%s,%s,%s,%s,%s)", (question_id,eTextbook_id, chapter_id, section_id,block_id,activity_id,student_user_id,1))
+        conn.commit()
+        return True, "Score updated successfully"
+    except Exception as e:
+        return False, "Failed to update score"
+    finally:
+        cursor.close()
+        conn.close()
