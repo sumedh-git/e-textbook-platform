@@ -9,11 +9,12 @@ function AddQuestion() {
     const [questionID, setQuestionID] = useState('');
     const [questionText, setQuestionText] = useState('');
     const [options, setOptions] = useState([
-        { text: '', explanation: '', isCorrect: false },
-        { text: '', explanation: '', isCorrect: false },
-        { text: '', explanation: '', isCorrect: false },
-        { text: '', explanation: '', isCorrect: false },
+        { text: '', explanation: '' },
+        { text: '', explanation: '' },
+        { text: '', explanation: '' },
+        { text: '', explanation: '' },
     ]);
+    const [answer, setAnswer] = useState(''); // Field for correct answer (1-4)
     const [error, setError] = useState(null);
 
     const userID = localStorage.getItem('userID');
@@ -26,14 +27,15 @@ function AddQuestion() {
     };
 
     const handleSubmit = async () => {
+        // Validate that all fields are completed
         if (!questionID || !questionText || options.some(option => !option.text || !option.explanation)) {
             setError('Please complete all fields.');
             return;
         }
 
-        const correctOptionIndex = options.findIndex(option => option.isCorrect);
-        if (correctOptionIndex === -1 || options.filter(option => option.isCorrect).length !== 1) {
-            setError('Please mark exactly one option as correct.');
+        const correctOptionIndex = parseInt(answer) - 1; // Convert answer to zero-based index for validation
+        if (isNaN(correctOptionIndex) || correctOptionIndex < 0 || correctOptionIndex >= options.length) {
+            setError('Please enter a valid option number (1-4) for the correct answer.');
             return;
         }
 
@@ -46,13 +48,13 @@ function AddQuestion() {
                     chapterID,
                     sectionID,
                     contentBlockID,
-                    blockType : 'activity',
+                    blockType: 'activity',
                     content: activityID,
                     activityID,
                     questionID,
                     questionText,
                     options,
-                    answerIdx: correctOptionIndex + 1,  // Send the correct option index as a 1-based index
+                    answerIdx: parseInt(answer),  // Use the answer directly as 1-based index
                     createdBy: userID
                 })
             });
@@ -110,20 +112,17 @@ function AddQuestion() {
                             required
                         />
                         <br />
-                        <label>Is Correct:</label>
-                        <input
-                            type="radio"
-                            checked={option.isCorrect}
-                            onChange={() => {
-                                const updatedOptions = options.map((opt, optIndex) =>
-                                    ({ ...opt, isCorrect: optIndex === index })
-                                );
-                                setOptions(updatedOptions);
-                            }}
-                        />
-                        <br />
                     </div>
                 ))}
+
+                <label>Answer (Enter option number 1-4):</label>
+                <input
+                    type="text"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    required
+                />
+                <br />
 
                 <button type="button" onClick={handleSubmit}>Save</button>
                 <button type="button" onClick={() => navigate(-1)}>Cancel</button>

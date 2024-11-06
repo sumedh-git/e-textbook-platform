@@ -49,6 +49,8 @@ import FacultyHideContentBlock from './components/FacultyHideContentBlock';
 import FacultyDeleteContentBlock from './components/FacultyDeleteContentBlock';
 import FacultyHideActivity from './components/FacultyHideActivity';
 import FacultyDeleteActivity from './components/FacultyDeleteActivity';
+import FacultyViewWorklist from './components/FacultyViewWorklist';
+import FacultyApproveEnrollment from './components/FacultyApproveEnrollment';
 
 function App() {
     return (
@@ -99,7 +101,9 @@ function App() {
                 <Route path="/faculty/view-courses" element={<FacultyViewCourses />} />
                 <Route path="/faculty/view-students" element={<FacultyViewStudents />} />
                 <Route path="/faculty/add-ta" element={<FacultyAddTa />} />
-                
+                <Route path="/faculty/view-worklist" element={<FacultyViewWorklist />} />
+                <Route path="/faculty/approve-enrollment" element={<FacultyApproveEnrollment />} />
+
                 <Route path="/dashboard/ta" element={<TADashboard />} />
                 <Route path="/ta/view-courses" element={<TAViewCourses />} />
                 <Route path="/ta/active-course" element={<TAActiveCourse />} />
