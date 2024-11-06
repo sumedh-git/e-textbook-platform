@@ -11,7 +11,8 @@ from queries import (
     get_content_blocks,
     get_question_query,
     insert_or_update_points,
-    get_student_activity_points
+    get_student_activity_points,
+    __create_user
 )
 
 student_bp = Blueprint('student', __name__)
@@ -42,7 +43,7 @@ def enroll_student():
     student_user_id = get_student_user_id_by_details(data)
     if student_user_id is None: 
         # Register student if not registered already
-        success, user_id, register_message = create_user(data, role='student')
+        success, user_id, register_message = __create_user(data, role='student')
         if not success: 
             #  Return error if student registration fails
             return jsonify({"error": f"Unable to register student. {register_message}"}), 500
