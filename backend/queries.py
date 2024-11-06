@@ -24,7 +24,7 @@ def create_user(data, role):
         cursor.execute("SELECT * FROM Users WHERE Email = %s OR UserID = %s", (email, user_id))
         existing_user = cursor.fetchone()
         if existing_user:
-            return False, "A user with this email or UserID already exists."
+            return False, None, "A user with this email or UserID already exists."
 
         # Insert into the Users table
         cursor.execute("""
@@ -41,12 +41,12 @@ def create_user(data, role):
             cursor.execute("INSERT INTO Students (UserID) VALUES (%s)", (user_id,))
         else:
             connection.rollback()  # Rollback transaction if role is invalid
-            return False, "Invalid role specified."
+            return False, None,"Invalid role specified."
 
         # Commit the transaction
         connection.commit()
 
-        return True, f"{role.capitalize()} account created successfully with UserID: {user_id}"
+        return True, user_id,f"{role.capitalize()} account created successfully with UserID: {user_id}"
     
     except Exception as e:
         # Rollback in case of any errors
@@ -1061,3 +1061,280 @@ def approve_enrollment(student_id, course_id):
     finally:
         cursor.close()
         connection.close()
+        
+
+def get_student_user_id_by_details(data):
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+    email = data.get('email')
+
+    # Check if all required fields are present in data
+    if not all([email, first_name, last_name]):
+        return None     
+
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Correct the query syntax and ensure placeholders are correct
+        query = """
+            SELECT UserID FROM Users 
+            WHERE Email = %s AND FirstName = %s AND LastName = %s
+        """
+        # Execute query with parameters to prevent SQL injection
+        cursor.execute(query, (email, first_name, last_name))
+        
+        # Fetch the result
+        student_id = cursor.fetchone()
+        
+        if student_id:
+            student_id = student_id[0]
+        else:
+            return None
+
+    except Exception as e:
+        return None
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    return student_id
+
+def get_course_details_by_token(token):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # Since each user has only 1 role, we can use this query directly
+    query = """
+        SELECT CourseID,Capacity FROM activecourses WHERE Token LIKE %s;
+    """
+    cursor.execute(query, (token,))
+    result = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return result
+
+def get_current_enrollment_count_by_course_id(token):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT COUNT(*) FROM Enrollments WHERE CourseID=%s AND EnrollmentStatus='Enrolled';
+    """
+    cursor.execute(query, (token,))
+    enrollment_count = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return enrollment_count
+
+def create_enrollment(course_id, student_id):
+    if not course_id or not student_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Insert the enrollment into the database
+        cursor.execute("""
+            INSERT INTO Enrollments (CourseID, StudentID, EnrollmentStatus)
+            VALUES (%s, %s,"Pending")
+        """, (course_id, student_id))
+
+        connection.commit()
+        return True, f" Student has been added to waitlist."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_students_textbooks(student_user_id):    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT 
+            et.ETextbookID,
+            et.Title AS textbook_title,
+            c.ChapterID,
+            c.Title AS chapter_title,
+            s.SectionID,
+            s.Title AS section_title
+        FROM 
+            Enrollments e
+        JOIN 
+            Courses cr ON e.CourseID = cr.CourseID AND cr.Type LIKE 'Active'
+        JOIN 
+            ETextbooks et ON cr.ETextbookID = et.ETextbookID
+        JOIN 
+            Chapters c ON et.ETextbookID = c.ETextbookID
+        JOIN 
+            Sections s ON c.ETextbookID = s.ETextbookID AND c.ChapterID = s.ChapterID
+        WHERE 
+            e.StudentID = %s AND e.EnrollmentStatus = 'Enrolled' AND
+            c.IsHidden IS FALSE AND 
+            s.IsHidden IS FALSE
+        ORDER BY 
+            et.ETextbookID, c.ChapterID, s.SectionID;
+    """
+    cursor.execute(query,(student_user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
+def check_textbook_accessible_by_student(data):
+    student_user_id=data.get("student_user_id")
+    eTextbook_id=data.get("eTextbook_id")
+
+    if not all([student_user_id, eTextbook_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 1
+        FROM Enrollments e
+        JOIN Courses c ON e.CourseID = c.CourseID
+        WHERE e.StudentID = %s AND e.EnrollmentStatus = 'Enrolled'
+            AND c.ETextbookID = %s AND c.Type = 'Active';
+    """, (student_user_id, eTextbook_id))
+
+    result = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return result
+
+def get_content_blocks(data):
+    eTextbook_id=data.get("eTextbook_id")
+    chapter_id=data.get("chapter_id")
+    section_id=data.get("section_id")
+
+    if not all([eTextbook_id, chapter_id, section_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            cb.BlockID, 
+            cb.BlockType, 
+            cb.Content
+        FROM ContentBlocks cb
+        WHERE cb.ETextbookID = %s AND cb.ChapterID = %s AND cb.SectionID = %s AND cb.IsHidden = FALSE
+        ORDER BY cb.BlockID;
+    """, (eTextbook_id,chapter_id, section_id))
+
+    content_blocks = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return content_blocks
+
+def get_question_query(data):
+    eTextbook_id=data.get("eTextbook_id")
+    chapter_id=data.get("chapter_id")
+    section_id=data.get("section_id")
+    block_id=data.get("block_id")
+    activity_id=data.get("activity_id")
+
+    if not all([eTextbook_id, chapter_id, section_id,activity_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            QuestionID,
+            QuestionText,
+            Option1,
+            Option1Explanation,
+            Option2,
+            Option2Explanation,
+            Option3,
+            Option3Explanation,
+            Option4,
+            Option4Explanation,
+            AnswerIdx FROM Questions AS q
+        WHERE q.ETextbookID = %s AND q.ChapterID = %s AND q.SectionID = %s AND q.BlockID = %s AND q.ActivityID = %s;
+    """, (eTextbook_id,chapter_id, section_id,block_id,activity_id))
+
+    content_blocks = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return content_blocks
+
+
+def insert_or_update_points(data):
+    eTextbook_id = data.get('eTextbook_id')
+    chapter_id = data.get('chapter_id')
+    section_id = data.get('section_id')
+    block_id = data.get('block_id')
+    activity_id = data.get('activity_id')
+    question_id = data.get('question_id')
+    student_user_id = data.get('student_user_id')
+    
+    if not all([eTextbook_id, chapter_id, section_id,activity_id,block_id,student_user_id,question_id]):
+        return False, "All details are required"
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT Points 
+            FROM StudentActivity 
+            WHERE 
+            ETextbookID=%s AND 
+            ChapterID=%s AND 
+            SectionID=%s AND 
+            BlockID=%s AND 
+            ActivityID=%s AND 
+            QuestionID=%s AND
+            StudentID=%s;""", (eTextbook_id, chapter_id, section_id,block_id,activity_id,question_id,student_user_id))
+        result = cursor.fetchone()
+
+        if not result:
+            print("Insert a new score record if none exists")
+            cursor.execute("INSERT INTO StudentActivity VALUES (%s, %s,%s,%s,%s,%s,%s,%s)", (question_id,eTextbook_id, chapter_id, section_id,block_id,activity_id,student_user_id,1))
+        conn.commit()
+        return True, "Score updated successfully"
+    except Exception as e:
+        return False, "Failed to update score"
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_student_activity_points(student_user_id):
+    print(student_user_id)
+    if not student_user_id:
+        return False, "Student User ID is required"
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT Points,
+                ETextbookID,
+                ChapterID,
+                SectionID,
+                BlockID,
+                ActivityID,
+                QuestionID, 
+                Points
+            FROM StudentActivity 
+            WHERE 
+            StudentID=%s;""", (student_user_id))
+        result = cursor.fetchall()
+
+        if not result:
+            print("Could not find activity points for student")
+            return False, "No records found"
+    except Exception as e:
+        return False, "Failed to fetch student participation activity points"
+    finally:
+        cursor.close()
+        conn.close()
