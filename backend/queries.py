@@ -1423,3 +1423,20 @@ def get_student_notifications(student_user_id):
     finally:
         cursor.close()
         conn.close()
+
+
+def delete_notification(notification_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Notifications WHERE NotificationID = %s", (notification_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:  # If no row was deleted, it means the notification was not found
+            return False, "Notification not found"
+        return True, "Notification deleted successfully"
+    except Exception as e:
+        return False, f"Failed to delete notification: {e}"
+    finally:
+        cursor.close()
+        conn.close()

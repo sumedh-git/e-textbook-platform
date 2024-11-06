@@ -35,6 +35,29 @@ function ViewNotifications() {
       });
   }, [url, studentUserID]);
 
+  // Function to handle marking a notification as read
+  const handleMarkAsRead = (notificationID) => {
+    fetch("http://localhost:5000/api/student/notifications/mark-read", {
+      method: "POST", // We use POST here since we're sending data in the body
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ notificationID }), // Sending notificationID in the request body
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete notification");
+        }
+        // Remove the notification from the local state after successful deletion
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter(
+            (notification) => notification[0] !== notificationID
+          )
+        );
+      })
+      .catch((error) => setError(error.message));
+  };
+
   if (loading) {
     return <p>Loading notifications...</p>;
   }
@@ -54,7 +77,11 @@ function ViewNotifications() {
               className="d-flex justify-content-between align-items-center"
             >
               <p>{notification[1]}</p>
-              <Button variant="secondary" size="sm">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleMarkAsRead(notification[0])}
+              >
                 Mark as Read
               </Button>
             </ListGroup.Item>

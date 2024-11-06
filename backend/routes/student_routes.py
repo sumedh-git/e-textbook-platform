@@ -13,7 +13,8 @@ from queries import (
     insert_or_update_points,
     get_student_activity_points,
     __create_user,
-    get_student_notifications
+    get_student_notifications,
+    delete_notification
 )
 
 student_bp = Blueprint('student', __name__)
@@ -287,3 +288,22 @@ def view_notifications():
         return jsonify({"message": "No notifications found for this student."}), 404
 
     return jsonify(notifications), 200
+
+@student_bp.route("/notifications/mark-read", methods=["POST"])
+def mark_notification_as_read():
+    # Get the notification ID from the request body
+    data = request.get_json()
+    notification_id = data.get('notificationID')  # Expecting 'notificationID' in the body
+
+    # Check if the notification ID is provided
+    if not notification_id:
+        return jsonify({"error": "Notification ID is required"}), 400
+
+    # Call the delete_notification function from queries.py
+    success, message = delete_notification(notification_id)
+
+    # Check the result of the delete operation
+    if success:
+        return jsonify({"message": "Notification deleted successfully"}), 200
+    else:
+        return jsonify({"error": message}), 400
