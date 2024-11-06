@@ -26,6 +26,7 @@ function CreateFaculty() {
         const data = await response.json();
         if (response.ok) {
             alert('Faculty account created successfully');
+            navigate(-1);
         } else {
             alert(data.error);
         }

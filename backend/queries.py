@@ -692,19 +692,37 @@ def hide_chapter(data):
     cursor = connection.cursor()
 
     try:
+        # Check if the chapter exists
+        cursor.execute("""
+            SELECT 1 FROM Chapters
+            WHERE ETextbookID = %s AND ChapterID = %s
+        """, (eTextbookID, chapterID))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Chapter not found."
+
+        # Proceed to hide the chapter if it exists
         cursor.execute("""
             UPDATE Chapters
             SET IsHidden = TRUE
             WHERE ETextbookID = %s AND ChapterID = %s
         """, (eTextbookID, chapterID))
-        connection.commit()
-        return True, "Chapter hidden successfully."
+
+        if cursor.rowcount > 0:
+            connection.commit()
+            return True, "Chapter hidden successfully."
+        else:
+            return False, "Failed to hide the chapter."
+
     except Exception as e:
         connection.rollback()
         return False, str(e)
+
     finally:
         cursor.close()
         connection.close()
+
 
 def delete_chapter(data):
     etextbook_id = data.get('eTextbookID')
@@ -749,6 +767,15 @@ def hide_section(data):
     cursor = connection.cursor()
     
     try:
+        cursor.execute("""
+            SELECT 1 FROM Sections
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s
+        """, (etextbook_id, chapter_id, section_id))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Section not found."
+        
         cursor.execute("""
             UPDATE Sections
             SET IsHidden = TRUE
@@ -854,6 +881,46 @@ def add_ta_to_course(data):
         cursor.close()
         connection.close()
 
+def hide_activity(data): 
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    block_id = data.get('contentBlockID')
+    activity_id = data.get('activityID')
+
+    if not etextbook_id or not chapter_id or not section_id or not block_id or not activity_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        cursor.execute("""
+            SELECT 1 FROM Activities
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s AND ActivityID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id, activity_id))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Activity not found."
+        
+        cursor.execute("""
+            UPDATE Activities
+            SET IsHidden = TRUE
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s AND ActivityID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id, activity_id))
+        
+        connection.commit()
+        return True, "Activity hidden successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
 def delete_activity(data):
     etextbook_id = data.get('eTextbookID')
     chapter_id = data.get('chapterID')
@@ -888,6 +955,45 @@ def delete_activity(data):
         cursor.close()
         connection.close()
 
+def hide_content_block(data): 
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    block_id = data.get('contentBlockID')
+
+    if not etextbook_id or not chapter_id or not section_id or not block_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        cursor.execute("""
+            SELECT 1 FROM ContentBlocks
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Content block not found."
+
+        cursor.execute("""
+            UPDATE ContentBlocks
+            SET IsHidden = TRUE
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id))
+        
+        connection.commit()
+        return True, "Content Block hidden successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
 def delete_content_block(data):
     etextbook_id = data.get('eTextbookID')
     chapter_id = data.get('chapterID')
@@ -916,6 +1022,42 @@ def delete_content_block(data):
     except Exception as e:
         connection.rollback()
         return False, f"Failed to delete content block: {str(e)}"
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def view_worklist(course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+        SELECT u.UserID, u.FirstName, u.LastName FROM Enrollments e JOIN Students s ON e.StudentID = s.UserID JOIN Users u ON s.UserID = u.UserID WHERE e.EnrollmentStatus = 'Pending' AND e.CourseID = %s;
+    """
+    cursor.execute(query, (course_id,))
+    worklist = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    return worklist
+
+def approve_enrollment(student_id, course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Call stored procedure to approve enrollment
+        cursor.callproc('ApproveEnrollment', (student_id, course_id))
+
+        # Fetch the result message returned by the procedure
+        result = cursor.fetchone()
+        connection.commit()
+        
+        return True, result[0] if result else "Enrollment approved successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
 
     finally:
         cursor.close()
