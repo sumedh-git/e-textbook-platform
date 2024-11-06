@@ -12,7 +12,8 @@ from queries import (
     get_question_query,
     insert_or_update_points,
     get_student_activity_points,
-    __create_user
+    __create_user,
+    get_student_notifications
 )
 
 student_bp = Blueprint('student', __name__)
@@ -267,3 +268,22 @@ def get_activity_points():
         hierarchy[etextbook_id][chapter_id][section_id][block_id][activity_id][question_id] = points
     print(hierarchy)
     return hierarchy
+
+
+from flask import Blueprint, request, jsonify
+
+@student_bp.route("/notifications", methods=["POST"])
+def view_notifications():
+    data = request.get_json()
+    student_user_id = data.get('studentUserID')
+
+    if not student_user_id:
+        return jsonify({"error": "User login is required"}), 400
+
+    # Assuming `get_student_notifications` is a function that fetches notifications from the database
+    notifications = get_student_notifications(student_user_id)
+
+    if not notifications:
+        return jsonify({"message": "No notifications found for this student."}), 404
+
+    return jsonify(notifications), 200

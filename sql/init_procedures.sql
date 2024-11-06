@@ -128,6 +128,9 @@ BEGIN
         -- Return success message
         SELECT "Enrollment approved successfully." AS result_message;
     ELSE
+        -- Insert notification if entry us not permitted
+        INSERT INTO Notifications (StudentID, Msg)
+        VALUES (in_StudentID, CONCAT("Waitlist is full so you were not enrolled in ", in_CourseID));
         -- If no capacity, return an error message
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Course is at full capacity.';

@@ -1394,3 +1394,32 @@ def get_student_activity_points(student_user_id):
     finally:
         cursor.close()
         conn.close()
+
+
+def get_student_notifications(student_user_id):
+    if not student_user_id:
+        return False, "Student User ID is required"
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT NotificationID, msg
+            FROM Notifications
+            WHERE StudentID = %s;
+        """, (student_user_id,))
+        result = cursor.fetchall()
+
+        if not result:
+            return False, "No notifications found for this student"
+        
+        notifications = result  # Extract only message_body
+        return True, notifications
+
+    except Exception as e:
+        print(f"Error fetching notifications: {e}")
+        return False, "Failed to fetch notifications"
+
+    finally:
+        cursor.close()
+        conn.close()
