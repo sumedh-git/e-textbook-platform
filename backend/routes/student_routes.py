@@ -10,7 +10,8 @@ from queries import (
     check_textbook_accessible_by_student,
     get_content_blocks,
     get_question_query,
-    insert_or_update_points
+    insert_or_update_points,
+    get_student_activity_points
 )
 
 student_bp = Blueprint('student', __name__)
@@ -232,3 +233,36 @@ def update_activity_points():
         return jsonify({"message": message}), 200
     else:
         return jsonify({"error": f"Failed to update score. {message}"}), 500
+
+@student_bp.route('/get-activity-points', methods=['GET'])
+def get_activity_points():
+    student_user_id=request.args.get('student-user-id')
+    print(student_user_id)
+    
+    if not student_user_id:
+        return jsonify({"error": "Missing student's user id."}), 400
+    results = get_student_activity_points(student_user_id)
+    
+    print("Fetched results")
+    hierarchy = {}
+    for row in results:
+        etextbook_id, chapter_id, section_id, block_id, activity_id, question_id, points = row
+        
+        if etextbook_id not in hierarchy:
+            hierarchy[etextbook_id] = {}
+        
+        if chapter_id not in hierarchy[etextbook_id]:
+            hierarchy[etextbook_id][chapter_id] = {}
+        
+        if section_id not in hierarchy[etextbook_id][chapter_id]:
+            hierarchy[etextbook_id][chapter_id][section_id] = {}
+
+        if block_id not in hierarchy[etextbook_id][chapter_id][section_id]:
+            hierarchy[etextbook_id][chapter_id][section_id][block_id] = {}
+
+        if activity_id not in hierarchy[etextbook_id][chapter_id][section_id][block_id]:
+            hierarchy[etextbook_id][chapter_id][section_id][block_id][activity_id] = {}
+        
+        hierarchy[etextbook_id][chapter_id][section_id][block_id][activity_id][question_id] = points
+    print(hierarchy)
+    return hierarchy

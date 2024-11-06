@@ -1096,3 +1096,35 @@ def insert_or_update_points(data):
     finally:
         cursor.close()
         conn.close()
+
+
+def get_student_activity_points(student_user_id):
+    print(student_user_id)
+    if not student_user_id:
+        return False, "Student User ID is required"
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT Points,
+                ETextbookID,
+                ChapterID,
+                SectionID,
+                BlockID,
+                ActivityID,
+                QuestionID, 
+                Points
+            FROM StudentActivity 
+            WHERE 
+            StudentID=%s;""", (student_user_id))
+        result = cursor.fetchall()
+
+        if not result:
+            print("Could not find activity points for student")
+            return False, "No records found"
+    except Exception as e:
+        return False, "Failed to fetch student participation activity points"
+    finally:
+        cursor.close()
+        conn.close()
+

@@ -73,3 +73,31 @@ BEGIN
     -- Call the stored procedure to check if editing is allowed
     CALL check_end_date(OLD.CourseID);
 END
+
+/&/
+
+CREATE TRIGGER InsertDefaultScoresAfterEnrollmentUpdate
+AFTER UPDATE ON Enrollments
+FOR EACH ROW
+BEGIN
+    -- Check if the enrollment status was changed to 'Enrolled'
+    IF NEW.EnrollmentStatus = 'Enrolled' AND OLD.EnrollmentStatus <> 'Enrolled' THEN
+        -- Insert a default score of 0 for each question in the e-textbook
+        INSERT INTO StudentActivity (QuestionID, ETextbookID, ChapterID, SectionID, BlockID, ActivityID, StudentID, Points)
+        SELECT 
+            q.QuestionID,
+            q.ETextbookID,
+            q.ChapterID,
+            q.SectionID,
+            q.BlockID,
+            q.ActivityID,
+            NEW.StudentID,
+            0 AS Points
+        FROM 
+            Questions q
+            JOIN Courses c ON c.CourseID = NEW.CourseID
+            JOIN ETextbooks et ON et.ETextbookID = c.ETextbookID
+        WHERE 
+            q.ETextbookID = et.ETextbookID;
+    END IF;
+END
