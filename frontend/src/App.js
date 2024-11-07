@@ -16,6 +16,9 @@ import ChangePassword from "./components/ChangePassword";
 import FacultyActiveCourse from "./components/FacultyActiveCourse";
 import FacultyEvaluationCourse from "./components/FacultyEvaluationCourse";
 import FacultyViewCourses from "./components/FacultyViewCourses";
+import StudentLogin from "./components/StudentLogin";
+import StudentEnroll from "./components/StudentEnroll";
+import StudentDashboard from "./components/Student Dashboard";
 import AddQuestion from "./components/AddQuestion";
 import ModifyETextbook from "./components/ModifyETextbook";
 import ModifyChapter from "./components/ModifyChapter";
@@ -29,6 +32,9 @@ import TAViewCourses from "./components/TAViewCourses";
 import TAActiveCourse from "./components/TAActiveCourse";
 import TAViewStudents from "./components/TAViewStudents";
 import FacultyViewStudents from "./components/FacultyViewStudents";
+import StudentViewSection from "./components/StudentViewSection";
+import StudentViewBlock from "./components/StudentViewBlock";
+import StudentViewParticipationActivityPoints from "./components/StudentViewParticipationActivityPoints";
 import CreateActiveCourse from "./components/CreateActiveCourse";
 import CreateEvaluationCourse from "./components/CreateEvaluationCourse";
 import FacultyModifyChapter from "./components/FacultyModifyChapter";
@@ -50,6 +56,10 @@ import TADeleteContentBlock from "./components/TADeleteContentBlock";
 import TADeleteActivity from "./components/TADeleteActivity";
 import TAModifySection from "./components/TAModifySection";
 import TAModifyContentBlock from "./components/TAModifyContentBlock";
+import FacultyViewWorklist from "./components/FacultyViewWorklist";
+import FacultyApproveEnrollment from "./components/FacultyApproveEnrollment";
+import ViewNotifications from "./components/ViewNotifications";
+import ExecuteQuery from "./components/ExecuteQuery";
 
 function App() {
   return (
@@ -93,6 +103,17 @@ function App() {
 
         <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
         <Route path="/change-password" element={<ChangePassword />} />
+
+        <Route path="/student/login" element={<StudentLogin />} />
+        <Route path="/student/enroll" element={<StudentEnroll />} />
+        <Route path="/dashboard/student" element={<StudentDashboard />} />
+        <Route path="/student/view-section" element={<StudentViewSection />} />
+        <Route path="/student/view-block" element={<StudentViewBlock />} />
+        <Route
+          path="/student/view-participation-activity-points"
+          element={<StudentViewParticipationActivityPoints />}
+        />
+
         <Route
           path="/faculty/active-course"
           element={<FacultyActiveCourse />}
@@ -146,10 +167,20 @@ function App() {
         />
         <Route path="/faculty/add-ta" element={<FacultyAddTa />} />
 
+        <Route
+          path="/faculty/view-worklist"
+          element={<FacultyViewWorklist />}
+        />
+        <Route
+          path="/faculty/approve-enrollment"
+          element={<FacultyApproveEnrollment />}
+        />
+
         <Route path="/dashboard/ta" element={<TADashboard />} />
         <Route path="/ta/view-courses" element={<TAViewCourses />} />
         <Route path="/ta/active-course" element={<TAActiveCourse />} />
         <Route path="/ta/view-students" element={<TAViewStudents />} />
+
         <Route path="/ta/modify-chapter" element={<TAModifyChapter />} />
         <Route path="/ta/delete-chapter" element={<TADeleteChapter />} />
         <Route path="/ta/delete-section" element={<TADeleteSection />} />
@@ -162,6 +193,16 @@ function App() {
         <Route
           path="/ta/modify-content-block"
           element={<TAModifyContentBlock />}
+
+
+        <Route
+          path="/student/view-notifications"
+          element={<ViewNotifications />}
+        />
+
+        <Route
+          path="/queries"
+          element={<ExecuteQuery />}
         />
       </Routes>
     </Router>

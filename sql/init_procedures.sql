@@ -18,6 +18,14 @@ DROP PROCEDURE IF EXISTS DeleteActivityByFacultyOrTA;
 
 /&/
 
+DROP PROCEDURE IF EXISTS ApproveEnrollment;
+
+/&/
+
+DROP TRIGGER IF EXISTS InsertDefaultScoresAfterEnrollmentUpdate;
+
+/&/
+
 CREATE PROCEDURE DeleteSectionByFacultyOrTA (
     IN in_userID VARCHAR(10),
     IN in_etextbookID VARCHAR(10),
@@ -62,146 +70,6 @@ END
 
 /&/
 
-CREATE PROCEDURE DeleteChapterByFacultyOrTA (
-    IN in_userID VARCHAR(10),
-    IN in_etextbookID VARCHAR(10),
-    IN in_chapterID VARCHAR(10)
-)
-BEGIN
-    DECLARE creator_id VARCHAR(10);
-
-    -- Get the creator ID for the chapter
-    SELECT CreatedBy INTO creator_id 
-    FROM Chapters 
-    WHERE ETextbookID = in_etextbookID 
-      AND ChapterID = in_chapterID;
-
-    -- Verify if the creator is the current faculty or a TA
-    IF creator_id = in_userID THEN
-        DELETE FROM Chapters 
-        WHERE ETextbookID = in_etextbookID 
-          AND ChapterID = in_chapterID;
-
-        SELECT "Chapter deleted successfully" AS result_message;
-
-    ELSEIF EXISTS (
-        SELECT 1 FROM TAs WHERE TAs.UserID = creator_id
-    ) THEN
-        DELETE FROM Chapters 
-        WHERE ETextbookID = in_etextbookID 
-          AND ChapterID = in_chapterID;
-
-        SELECT "Chapter deleted successfully" AS result_message;
-
-    ELSE
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'You do not have permission to delete this chapter.';
-    END IF;
-
-END;
-
-/&/
-
-CREATE PROCEDURE DeleteContentBlockByFacultyOrTA (
-    IN in_userID VARCHAR(10),
-    IN in_etextbookID VARCHAR(10),
-    IN in_chapterID VARCHAR(10),
-    IN in_sectionID VARCHAR(10),
-    IN in_blockID VARCHAR(10)
-)
-BEGIN
-    DECLARE creator_id VARCHAR(10);
-
-    -- Get the creator ID for the content block
-    SELECT CreatedBy INTO creator_id 
-    FROM ContentBlocks 
-    WHERE ETextbookID = in_etextbookID 
-      AND ChapterID = in_chapterID 
-      AND SectionID = in_sectionID
-      AND BlockID = in_blockID;
-
-    -- Verify if the creator is the current faculty or a TA
-    IF creator_id = in_userID THEN
-        DELETE FROM ContentBlocks 
-        WHERE ETextbookID = in_etextbookID 
-          AND ChapterID = in_chapterID 
-          AND SectionID = in_sectionID
-          AND BlockID = in_blockID;
-
-        SELECT "Content block deleted successfully" AS result_message;
-
-    ELSEIF EXISTS (
-        SELECT 1 FROM TAs WHERE TAs.UserID = creator_id
-    ) THEN
-        DELETE FROM ContentBlocks 
-        WHERE ETextbookID = in_etextbookID 
-          AND ChapterID = in_chapterID 
-          AND SectionID = in_sectionID
-          AND BlockID = in_blockID;
-
-        SELECT "Content block deleted successfully" AS result_message;
-
-    ELSE
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'You do not have permission to delete this content block.';
-    END IF;
-
-END;
-
-/&/
-
-CREATE PROCEDURE DeleteActivityByFacultyOrTA (
-    IN in_userID VARCHAR(10),
-    IN in_etextbookID VARCHAR(10),
-    IN in_chapterID VARCHAR(10),
-    IN in_sectionID VARCHAR(10),
-    IN in_blockID VARCHAR(10),
-    IN in_activityID VARCHAR(10)
-)
-BEGIN
-    DECLARE creator_id VARCHAR(10);
-
-    -- Get the creator ID for the activity
-    SELECT CreatedBy INTO creator_id 
-    FROM Activities 
-    WHERE ETextbookID = in_etextbookID 
-      AND ChapterID = in_chapterID 
-      AND SectionID = in_sectionID
-      AND BlockID = in_blockID
-      AND ActivityID = in_activityID;
-
-    -- Verify if the creator is the current faculty or a TA
-    IF creator_id = in_userID THEN
-        DELETE FROM Activities 
-        WHERE ETextbookID = in_etextbookID 
-          AND ChapterID = in_chapterID 
-          AND SectionID = in_sectionID
-          AND BlockID = in_blockID
-          AND ActivityID = in_activityID;
-
-        SELECT "Activity deleted successfully" AS result_message;
-
-    ELSEIF EXISTS (
-        SELECT 1 FROM TAs WHERE TAs.UserID = creator_id
-    ) THEN
-        DELETE FROM Activities 
-        WHERE ETextbookID = in_etextbookID 
-          AND ChapterID = in_chapterID 
-          AND SectionID = in_sectionID
-          AND BlockID = in_blockID
-          AND ActivityID = in_activityID;
-
-        SELECT "Activity deleted successfully" AS result_message;
-
-    ELSE
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'You do not have permission to delete this activity.';
-    END IF;
-
-END;
-
-/&/
-
 -- Create a stored procedure to check the end date of a course
 CREATE PROCEDURE check_end_date(IN p_course_id VARCHAR(20))
 BEGIN
@@ -228,4 +96,75 @@ FOR EACH ROW
 BEGIN
     -- Call the stored procedure to check if editing is allowed
     CALL check_end_date(OLD.CourseID);
+END
+
+/&/
+
+
+CREATE PROCEDURE ApproveEnrollment(
+    IN in_StudentID VARCHAR(10),
+    IN in_CourseID VARCHAR(20)
+)
+BEGIN
+    DECLARE courseCapacity INT;
+
+    -- Retrieve the current capacity of the specific course
+    SELECT Capacity INTO courseCapacity
+    FROM ActiveCourses
+    WHERE CourseID = in_CourseID;
+
+    -- Check if the course has available capacity
+    IF courseCapacity > 0 THEN
+        -- Update enrollment status to 'Enrolled' for the specified student and course
+        UPDATE Enrollments
+        SET EnrollmentStatus = 'Enrolled'
+        WHERE StudentID = in_StudentID AND CourseID = in_CourseID;
+
+        -- Decrease the capacity of the specific course by 1
+        UPDATE ActiveCourses
+        SET Capacity = Capacity - 1
+        WHERE CourseID = in_CourseID;
+        
+        -- Insert notification entry for the student
+        INSERT INTO Notifications (StudentID, Msg)
+        VALUES (in_StudentID, CONCAT("Enrolled in ", in_CourseID));
+        
+        -- Return success message
+        SELECT "Enrollment approved successfully." AS result_message;
+    ELSE
+        -- Insert notification if entry us not permitted
+        INSERT INTO Notifications (StudentID, Msg)
+        VALUES (in_StudentID, CONCAT("Waitlist is full so you were not enrolled in ", in_CourseID));
+        -- If no capacity, return an error message
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Course is at full capacity.';
+    END IF;
+END
+
+/&/
+
+CREATE TRIGGER InsertDefaultScoresAfterEnrollmentUpdate
+AFTER UPDATE ON Enrollments
+FOR EACH ROW
+BEGIN
+    -- Check if the enrollment status was changed to 'Enrolled'
+    IF NEW.EnrollmentStatus = 'Enrolled' AND OLD.EnrollmentStatus <> 'Enrolled' THEN
+        -- Insert a default score of 0 for each question in the e-textbook
+        INSERT INTO StudentActivity (QuestionID, ETextbookID, ChapterID, SectionID, BlockID, ActivityID, StudentID, Points)
+        SELECT 
+            q.QuestionID,
+            q.ETextbookID,
+            q.ChapterID,
+            q.SectionID,
+            q.BlockID,
+            q.ActivityID,
+            NEW.StudentID,
+            0 AS Points
+        FROM 
+            Questions q
+            JOIN Courses c ON c.CourseID = NEW.CourseID
+            JOIN ETextbooks et ON et.ETextbookID = c.ETextbookID
+        WHERE 
+            q.ETextbookID = et.ETextbookID;
+    END IF;
 END

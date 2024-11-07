@@ -2,9 +2,24 @@
 from flask import Blueprint, request, jsonify
 from queries import get_faculty_active_course, get_evaluation_course, get_faculty_courses, \
       get_students_from_course, hide_chapter, delete_chapter, hide_section, delete_section, add_ta_to_course, \
-          delete_activity, delete_content_block
+          delete_activity, delete_content_block, hide_activity, hide_content_block, view_worklist, approve_enrollment
 
 faculty_bp = Blueprint('faculty', __name__)
+
+@faculty_bp.route('/view-worklist', methods=['POST'])
+def view_worklist_route():
+    data = request.json
+    course_id = data.get('course_id')
+
+    if not course_id:
+        return jsonify({"error": "Course ID is required"}), 400
+
+    worklist = view_worklist(course_id)
+
+    if not worklist:
+        return jsonify({"message": "No students in waitlist for this course"}), 404
+    
+    return jsonify(worklist), 200
 
 @faculty_bp.route('/go-to-active-course', methods=['POST'])
 def go_to_active_course():
@@ -116,7 +131,16 @@ def add_ta():
         return jsonify({"message": message}), 201
     else:
         return jsonify({"error": message}), 400
-    
+
+@faculty_bp.route('/hide-activity', methods=['POST'])
+def hide_activity_route():
+    data = request.json
+    success, message = hide_activity(data)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+
 @faculty_bp.route('/delete-activity', methods=['POST'])
 def delete_activity_route():
     data = request.json
@@ -125,11 +149,39 @@ def delete_activity_route():
         return jsonify({"message": message}), 200
     else:
         return jsonify({"error": message}), 400
-    
+
+@faculty_bp.route('/hide-content-block', methods=['POST'])
+def hide_content_block_route():
+    data = request.json
+    success, message = hide_content_block(data)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+
 @faculty_bp.route('/delete-content-block', methods=['POST'])
 def delete_content_block_route():
     data = request.json
     success, message = delete_content_block(data)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+    
+@faculty_bp.route('/approve-enrollment', methods=['POST'])
+def approve_enrollment_route():
+    data = request.get_json()
+    student_id = data.get('studentID')
+    course_id = data.get('courseID')  # This should be passed or retrieved based on context.
+
+    print(course_id,student_id)
+
+    if not student_id or not course_id:
+        return jsonify({"error": "Student ID and Course ID are required"}), 400
+
+    # Call the procedure to approve the student's enrollment
+    success, message = approve_enrollment(student_id, course_id)
+
     if success:
         return jsonify({"message": message}), 200
     else:

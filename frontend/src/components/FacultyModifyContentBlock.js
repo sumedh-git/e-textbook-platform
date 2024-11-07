@@ -27,6 +27,8 @@ function FacultyModifyContentBlock() {
 
     // Mapping of actions to routes
     const actionRouteMap = {
+        AddText : "/faculty/add-content-block",
+        AddPicture : "/faculty/add-content-block",
         HideContentBlock: "/faculty/hide-content-block",
         DeleteContentBlock: "/faculty/delete-content-block",
         HideActivity: "/faculty/hide-activity",
@@ -94,7 +96,7 @@ function FacultyModifyContentBlock() {
                     <ListGroup.Item action onClick={() => handleMenuAction("AddText", 'text')}>
                         3. Add Text
                     </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => handleMenuAction("AddPicture", 'image')}>
+                    <ListGroup.Item action onClick={() => handleMenuAction("AddPicture", 'picture')}>
                         4. Add Picture
                     </ListGroup.Item>
                     <ListGroup.Item action onClick={() => handleMenuAction("HideActivity")}>

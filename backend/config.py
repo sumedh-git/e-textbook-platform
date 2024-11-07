@@ -7,7 +7,7 @@ def get_db_connection():
         connection = mysql.connector.connect(
             host='localhost',         # Your MySQL server's host (localhost for local)
             user='root',         # Your MySQL username
-            password='<Insert Your Password Here>', # Your MySQL password
+            password='<Insert_Your_Password_Here>', # Your MySQL password
             database='elearning_platform', # The database you want to connect to
             port=3306                 # Optional: the default MySQL port is 3306
         )

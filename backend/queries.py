@@ -5,6 +5,61 @@ def generate_user_id(first_name, last_name):
     current_month_year = datetime.now().strftime('%m%y')  # Get current month and year (MMYY)
     return first_name[:2].upper() + last_name[:2].upper() + current_month_year
 
+
+# Function to create a user (Admin, Faculty, or Student)
+def __create_user(data, role):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Extract data from request payload
+        first_name = data.get('firstName')
+        last_name = data.get('lastName')
+        email = data.get('email')
+        password = data.get('password')
+
+        # Generate a unique UserID
+        user_id = generate_user_id(first_name, last_name)
+
+        # Check if the user is already in the system (by email or user ID)
+        cursor.execute("SELECT * FROM Users WHERE Email = %s OR UserID = %s", (email, user_id))
+        existing_user = cursor.fetchone()
+        if existing_user:
+            return False, "A user with this email or UserID already exists."
+
+        # Insert into the Users table
+        cursor.execute("""
+            INSERT INTO Users (UserID, FirstName, LastName, Email, Password)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, first_name, last_name, email, password))
+
+        # Insert into the corresponding role table
+        if role == 'admin':
+            cursor.execute("INSERT INTO Admins (UserID) VALUES (%s)", (user_id,))
+        elif role == 'faculty':
+            cursor.execute("INSERT INTO Faculties (UserID) VALUES (%s)", (user_id,))
+        elif role == 'student':
+            cursor.execute("INSERT INTO Students (UserID) VALUES (%s)", (user_id,))
+        else:
+            connection.rollback()  # Rollback transaction if role is invalid
+            return False, "Invalid role specified."
+
+        # Commit the transaction
+        connection.commit()
+
+        return True, user_id, f"{role.capitalize()} account created successfully with UserID: {user_id}"
+    
+    except Exception as e:
+        # Rollback in case of any errors
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        # Close cursor and connection
+        cursor.close()
+        connection.close()
+
+
 # Function to create a user (Admin, Faculty, or Student)
 def create_user(data, role):
     connection = get_db_connection()
@@ -696,19 +751,37 @@ def hide_chapter(data):
     cursor = connection.cursor()
 
     try:
+        # Check if the chapter exists
+        cursor.execute("""
+            SELECT 1 FROM Chapters
+            WHERE ETextbookID = %s AND ChapterID = %s
+        """, (eTextbookID, chapterID))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Chapter not found."
+
+        # Proceed to hide the chapter if it exists
         cursor.execute("""
             UPDATE Chapters
             SET IsHidden = TRUE
             WHERE ETextbookID = %s AND ChapterID = %s
         """, (eTextbookID, chapterID))
-        connection.commit()
-        return True, "Chapter hidden successfully."
+
+        if cursor.rowcount > 0:
+            connection.commit()
+            return True, "Chapter hidden successfully."
+        else:
+            return False, "Failed to hide the chapter."
+
     except Exception as e:
         connection.rollback()
         return False, str(e)
+
     finally:
         cursor.close()
         connection.close()
+
 
 def delete_chapter(data):
     etextbook_id = data.get('eTextbookID')
@@ -753,6 +826,15 @@ def hide_section(data):
     cursor = connection.cursor()
     
     try:
+        cursor.execute("""
+            SELECT 1 FROM Sections
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s
+        """, (etextbook_id, chapter_id, section_id))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Section not found."
+        
         cursor.execute("""
             UPDATE Sections
             SET IsHidden = TRUE
@@ -858,6 +940,46 @@ def add_ta_to_course(data):
         cursor.close()
         connection.close()
 
+def hide_activity(data): 
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    block_id = data.get('contentBlockID')
+    activity_id = data.get('activityID')
+
+    if not etextbook_id or not chapter_id or not section_id or not block_id or not activity_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        cursor.execute("""
+            SELECT 1 FROM Activities
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s AND ActivityID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id, activity_id))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Activity not found."
+        
+        cursor.execute("""
+            UPDATE Activities
+            SET IsHidden = TRUE
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s AND ActivityID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id, activity_id))
+        
+        connection.commit()
+        return True, "Activity hidden successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
+    finally:
+        cursor.close()
+        connection.close()
+
 def delete_activity(data):
     etextbook_id = data.get('eTextbookID')
     chapter_id = data.get('chapterID')
@@ -888,6 +1010,45 @@ def delete_activity(data):
         connection.rollback()
         return False, f"Failed to delete activity: {str(e)}"
 
+    finally:
+        cursor.close()
+        connection.close()
+
+def hide_content_block(data): 
+    etextbook_id = data.get('eTextbookID')
+    chapter_id = data.get('chapterID')
+    section_id = data.get('sectionID')
+    block_id = data.get('contentBlockID')
+
+    if not etextbook_id or not chapter_id or not section_id or not block_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    try:
+        cursor.execute("""
+            SELECT 1 FROM ContentBlocks
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id))
+        exists = cursor.fetchone()
+
+        if not exists:
+            return False, "Content block not found."
+
+        cursor.execute("""
+            UPDATE ContentBlocks
+            SET IsHidden = TRUE
+            WHERE ETextbookID = %s AND ChapterID = %s AND SectionID = %s AND BlockID = %s
+        """, (etextbook_id, chapter_id, section_id, block_id))
+        
+        connection.commit()
+        return True, "Content Block hidden successfully."
+    
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+    
     finally:
         cursor.close()
         connection.close()
@@ -924,3 +1085,537 @@ def delete_content_block(data):
     finally:
         cursor.close()
         connection.close()
+
+def view_worklist(course_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    query = """
+        SELECT u.UserID, u.FirstName, u.LastName FROM Enrollments e JOIN Students s ON e.StudentID = s.UserID JOIN Users u ON s.UserID = u.UserID WHERE e.EnrollmentStatus = 'Pending' AND e.CourseID = %s;
+    """
+    cursor.execute(query, (course_id,))
+    worklist = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    return worklist
+
+def approve_enrollment(student_id, course_id):
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Call stored procedure to approve enrollment
+        cursor.callproc('ApproveEnrollment', (student_id, course_id))
+
+        # Fetch the result message returned by the procedure
+        result = cursor.fetchone()
+        connection.commit()
+        
+        return True, result[0] if result else "Enrollment approved successfully."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_student_user_id_by_details(data):
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+    email = data.get('email')
+
+    # Check if all required fields are present in data
+    if not all([email, first_name, last_name]):
+        return None     
+
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Correct the query syntax and ensure placeholders are correct
+        query = """
+            SELECT UserID FROM Users 
+            WHERE Email = %s AND FirstName = %s AND LastName = %s
+        """
+        # Execute query with parameters to prevent SQL injection
+        cursor.execute(query, (email, first_name, last_name))
+        
+        # Fetch the result
+        student_id = cursor.fetchone()
+        
+        if student_id:
+            student_id = student_id[0]
+        else:
+            return None
+
+    except Exception as e:
+        return None
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    return student_id
+
+def get_course_details_by_token(token):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    # Since each user has only 1 role, we can use this query directly
+    query = """
+        SELECT CourseID,Capacity FROM activecourses WHERE Token LIKE %s;
+    """
+    cursor.execute(query, (token,))
+    result = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return result
+
+def get_current_enrollment_count_by_course_id(token):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT COUNT(*) FROM Enrollments WHERE CourseID=%s AND EnrollmentStatus='Enrolled';
+    """
+    cursor.execute(query, (token,))
+    enrollment_count = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return enrollment_count
+
+def create_enrollment(course_id, student_id):
+    if not course_id or not student_id:
+        return False, "Missing required fields"
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Insert the enrollment into the database
+        cursor.execute("""
+            INSERT INTO Enrollments (CourseID, StudentID, EnrollmentStatus)
+            VALUES (%s, %s,"Pending")
+        """, (course_id, student_id))
+
+        connection.commit()
+        return True, f" Student has been added to waitlist."
+
+    except Exception as e:
+        connection.rollback()
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_students_textbooks(student_user_id):    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    
+    query = """
+        SELECT 
+            et.ETextbookID,
+            et.Title AS textbook_title,
+            c.ChapterID,
+            c.Title AS chapter_title,
+            s.SectionID,
+            s.Title AS section_title
+        FROM 
+            Enrollments e
+        JOIN 
+            Courses cr ON e.CourseID = cr.CourseID AND cr.Type LIKE 'Active'
+        JOIN 
+            ETextbooks et ON cr.ETextbookID = et.ETextbookID
+        JOIN 
+            Chapters c ON et.ETextbookID = c.ETextbookID
+        JOIN 
+            Sections s ON c.ETextbookID = s.ETextbookID AND c.ChapterID = s.ChapterID
+        WHERE 
+            e.StudentID = %s AND e.EnrollmentStatus = 'Enrolled' AND
+            c.IsHidden IS FALSE AND 
+            s.IsHidden IS FALSE
+        ORDER BY 
+            et.ETextbookID, c.ChapterID, s.SectionID;
+    """
+    cursor.execute(query,(student_user_id,))
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
+def check_textbook_accessible_by_student(data):
+    student_user_id=data.get("student_user_id")
+    eTextbook_id=data.get("eTextbook_id")
+
+    if not all([student_user_id, eTextbook_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 1
+        FROM Enrollments e
+        JOIN Courses c ON e.CourseID = c.CourseID
+        WHERE e.StudentID = %s AND e.EnrollmentStatus = 'Enrolled'
+            AND c.ETextbookID = %s AND c.Type = 'Active';
+    """, (student_user_id, eTextbook_id))
+
+    result = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return result
+
+def get_content_blocks(data):
+    eTextbook_id=data.get("eTextbook_id")
+    chapter_id=data.get("chapter_id")
+    section_id=data.get("section_id")
+
+    if not all([eTextbook_id, chapter_id, section_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            cb.BlockID, 
+            cb.BlockType, 
+            cb.Content
+        FROM ContentBlocks cb
+        WHERE cb.ETextbookID = %s AND cb.ChapterID = %s AND cb.SectionID = %s AND cb.IsHidden = FALSE
+        ORDER BY cb.BlockID;
+    """, (eTextbook_id,chapter_id, section_id))
+
+    content_blocks = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return content_blocks
+
+def get_question_query(data):
+    eTextbook_id=data.get("eTextbook_id")
+    chapter_id=data.get("chapter_id")
+    section_id=data.get("section_id")
+    block_id=data.get("block_id")
+    activity_id=data.get("activity_id")
+
+    if not all([eTextbook_id, chapter_id, section_id,activity_id]):
+        return None
+    
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            QuestionID,
+            QuestionText,
+            Option1,
+            Option1Explanation,
+            Option2,
+            Option2Explanation,
+            Option3,
+            Option3Explanation,
+            Option4,
+            Option4Explanation,
+            AnswerIdx FROM Questions AS q
+        WHERE q.ETextbookID = %s AND q.ChapterID = %s AND q.SectionID = %s AND q.BlockID = %s AND q.ActivityID = %s;
+    """, (eTextbook_id,chapter_id, section_id,block_id,activity_id))
+
+    content_blocks = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return content_blocks
+
+
+def insert_or_update_points(data):
+    eTextbook_id = data.get('eTextbook_id')
+    chapter_id = data.get('chapter_id')
+    section_id = data.get('section_id')
+    block_id = data.get('block_id')
+    activity_id = data.get('activity_id')
+    question_id = data.get('question_id')
+    student_user_id = data.get('student_user_id')
+    
+    if not all([eTextbook_id, chapter_id, section_id,activity_id,block_id,student_user_id,question_id]):
+        return False, "All details are required"
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT Points 
+            FROM StudentActivity 
+            WHERE 
+            ETextbookID=%s AND 
+            ChapterID=%s AND 
+            SectionID=%s AND 
+            BlockID=%s AND 
+            ActivityID=%s AND 
+            QuestionID=%s AND
+            StudentID=%s;""", (eTextbook_id, chapter_id, section_id,block_id,activity_id,question_id,student_user_id))
+        result = cursor.fetchone()
+
+        if not result:
+            print("Insert a new score record if none exists")
+            cursor.execute("INSERT INTO StudentActivity VALUES (%s, %s,%s,%s,%s,%s,%s,%s)", (question_id,eTextbook_id, chapter_id, section_id,block_id,activity_id,student_user_id,1))
+        conn.commit()
+        return True, "Score updated successfully"
+    except Exception as e:
+        return False, "Failed to update score"
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_student_activity_points(student_user_id):
+    print("queries.py", student_user_id)
+    if not student_user_id:
+        return None, "Student User ID is required"
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                ETextbookID,
+                ChapterID,
+                SectionID,
+                BlockID,
+                ActivityID,
+                QuestionID, 
+                Points
+            FROM StudentActivity 
+            WHERE 
+            StudentID=%s;""", (student_user_id,))
+        result = cursor.fetchall()
+        print("queries.py",result)
+        
+        if not result:
+            print("queries.py","Could not find activity points for student")
+            return None, "No records found"
+        return result, "Fetched Records"
+    
+    except Exception as e:
+        return None, "Failed to fetch student participation activity points"
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_student_notifications(student_user_id):
+    if not student_user_id:
+        return False, "Student User ID is required"
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT NotificationID, msg
+            FROM Notifications
+            WHERE StudentID = %s;
+        """, (student_user_id,))
+        result = cursor.fetchall()
+
+        if not result:
+            return False, "No notifications found for this student"
+        
+        notifications = result  # Extract only message_body
+        return True, notifications
+
+    except Exception as e:
+        print(f"Error fetching notifications: {e}")
+        return False, "Failed to fetch notifications"
+
+    finally:
+        cursor.close()
+        conn.close()
+
+def execute_query(option):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Define the queries based on the option
+        if option == 1:
+            query = """
+            SELECT ETextbookID, COUNT(*) AS NumberOfSections
+            FROM Sections
+            WHERE ChapterID = 'chap01'
+            GROUP BY ETextbookID;
+            """
+        elif option == 2:
+            query = """
+            SELECT 
+                CONCAT(U.FirstName, ' ', U.LastName) AS Name,
+                'Faculty' AS Role
+            FROM Faculties F
+            JOIN Users U ON F.UserID = U.UserID
+
+            UNION ALL
+
+            SELECT 
+                CONCAT(U.FirstName, ' ', U.LastName) AS Name,
+                'TA' AS Role
+            FROM TAs T
+            JOIN CourseTAs CT ON T.UserID = CT.TAID
+            JOIN Users U ON T.UserID = U.UserID;
+            """
+        elif option == 3:
+            query = """
+            SELECT 
+                C.CourseID,
+                CONCAT(U.FirstName, ' ', U.LastName) AS FacultyName,
+                COUNT(E.StudentID) AS TotalStudents
+            FROM Courses C
+            JOIN ActiveCourses AC ON C.CourseID = AC.CourseID
+            JOIN Faculties F ON C.FacultyID = F.UserID
+            JOIN Users U ON F.UserID = U.UserID
+            LEFT JOIN Enrollments E ON C.CourseID = E.CourseID AND E.EnrollmentStatus = 'Enrolled'
+            GROUP BY C.CourseID, FacultyName;
+            """
+        elif option == 4:
+            query = """
+            SELECT 
+                CourseID,
+                COUNT(StudentID) AS WaitingListCount
+            FROM Enrollments
+            WHERE EnrollmentStatus = 'Pending'
+            GROUP BY CourseID
+            ORDER BY WaitingListCount DESC
+            LIMIT 1;
+            """
+        elif option == 5:
+            query = """
+            SELECT 
+                s.SectionID,  -- Add SectionID to the selection
+                s.Title AS SectionTitle,
+                cb.BlockID,
+                cb.BlockType,
+                cb.Content
+            FROM 
+                Sections s
+            JOIN 
+                ContentBlocks cb ON s.ETextbookID = cb.ETextbookID 
+                AND s.ChapterID = cb.ChapterID 
+                AND s.SectionID = cb.SectionID
+            WHERE 
+                s.ETextbookID = '101' 
+                AND s.ChapterID = 'chap02'
+            ORDER BY 
+                s.SectionID, cb.BlockID;
+            """
+        elif option == 6:
+            query = """
+            SELECT 
+                OptionText AS IncorrectOption,
+                Explanation AS IncorrectExplanation
+            FROM 
+                (
+                    SELECT 
+                        Option1 AS OptionText, 
+                        Option1Explanation AS Explanation, 
+                        1 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        Option2 AS OptionText, 
+                        Option2Explanation AS Explanation, 
+                        2 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        Option3 AS OptionText, 
+                        Option3Explanation AS Explanation, 
+                        3 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        Option4 AS OptionText, 
+                        Option4Explanation AS Explanation, 
+                        4 AS OptionIdx
+                    FROM Questions
+                    WHERE 
+                        ETextbookID = '101' 
+                        AND ChapterID = 'chap01'
+                        AND SectionID = 'Sec02'
+                        AND ActivityID = 'ACT0'
+                        AND QuestionID = 'Q2'
+                ) AS AllOptions
+            WHERE 
+                OptionIdx != (SELECT AnswerIdx FROM Questions 
+                              WHERE 
+                                ETextbookID = '101' 
+                                AND ChapterID = 'chap01'
+                                AND SectionID = 'Sec02'
+                                AND ActivityID = 'ACT0'
+                                AND QuestionID = 'Q2');
+            """
+        elif option == 7:
+            query = """
+            SELECT DISTINCT c1.ETextbookID
+            FROM Courses c1
+            JOIN Courses c2 ON c1.ETextbookID = c2.ETextbookID
+            WHERE c1.Type = 'Active'
+              AND c2.Type = 'Evaluation'
+              AND c1.FacultyID != c2.FacultyID;
+            """
+        else:
+            return False, "Invalid query option."
+
+        # Execute the query
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        print(result)
+        if not result:
+            return "No data found for the selected query."
+
+        return result
+
+    except Exception as e:
+        print(f"Error executing query {option}: {e}")
+        return False, "An error occurred while executing the query."
+
+    finally:
+        cursor.close()
+
+def delete_notification(notification_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Notifications WHERE NotificationID = %s", (notification_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:  # If no row was deleted, it means the notification was not found
+            return False, "Notification not found"
+        return True, "Notification deleted successfully"
+    except Exception as e:
+        return False, f"Failed to delete notification: {e}"
+    finally:
+        cursor.close()
+        conn.close()
