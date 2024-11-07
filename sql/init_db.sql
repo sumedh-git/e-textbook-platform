@@ -1,6 +1,8 @@
 SET foreign_key_checks = 0;
-DROP TABLE IF EXISTS Users, Students, Faculties, Admins, TAs, Etextbooks, Chapters, Sections, ContentBlocks, Questions, Activities, Answers, Courses, ActiveCourses, Enrollments, CourseTAs;
+DROP TABLE IF EXISTS Users, Students, Faculties, Admins, TAs, Etextbooks, Chapters, Sections, ContentBlocks, Questions, Activities, Answers, Courses, ActiveCourses, Enrollments, CourseTAs, Notifications, StudentActivity;
 SET foreign_key_checks = 1;
+
+DROP PROCEDURE IF EXISTS DeleteSectionByFacultyOrTA;
 
 CREATE TABLE Users (
     UserID VARCHAR(10) PRIMARY KEY,
@@ -23,6 +25,7 @@ CREATE TABLE Faculties (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+
 CREATE TABLE TAs (
     UserID VARCHAR(10) PRIMARY KEY,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -129,7 +132,7 @@ CREATE TABLE Questions (
     Option3Explanation TEXT,
     Option4 TEXT NOT NULL,
     Option4Explanation TEXT,
-    AnswerIdx INT NOT NULL,
+    AnswerIdx INT NOT NULL CHECK (AnswerIdx IN (1,2,3,4)),
     CreatedBy VARCHAR(10) NULL,
     PRIMARY KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID, QuestionID),
     FOREIGN KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID) REFERENCES Activities(ETextbookID, ChapterID, SectionID, BlockID, ActivityID)
@@ -138,6 +141,23 @@ CREATE TABLE Questions (
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
     ON DELETE SET NULL
     ON UPDATE CASCADE
+);
+CREATE TABLE StudentActivity (
+    QuestionID VARCHAR(10),
+    ETextbookID VARCHAR(10),
+    ChapterID VARCHAR(10),
+    SectionID VARCHAR(10),
+    BlockID VARCHAR(10),
+    ActivityID VARCHAR(10),
+    StudentID VARCHAR(10),
+    Points   INT NOT NULL CHECK(Points IN (0,1)) DEFAULT 0,
+    PRIMARY KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID, QuestionID, StudentID),
+    FOREIGN KEY (ETextbookID, ChapterID, SectionID, BlockID, ActivityID) REFERENCES Activities(ETextbookID, ChapterID, SectionID, BlockID, ActivityID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (StudentID) REFERENCES Students(UserID)
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE Courses (
@@ -355,83 +375,3 @@ INSERT INTO CourseTAs (CourseID, TAID) VALUES
 ('NCSUSaraCSC326F24', 'DaJo1024'),
 ('NCSUOganCSC440F24', 'ElCl1024'),
 ('NCSUOganCSC540F24', 'JeGi0924');
-
-
-
-
--- -- Insert Users
--- INSERT INTO Users (UserID, FirstName, LastName, Email, Password) VALUES
--- ('A001', 'John', 'Doe', 'john.doe@example.com', 'ab'),
--- ('A002', 'Jane', 'Smith', 'jane.smith@example.com', 'cd'),
--- ('A003', 'Emily', 'Johnson', 'emily.johnson@example.com', 'ef'),
--- ('A004', 'Michael', 'Brown', 'michael.brown@example.com', 'gh'),
--- ('A005', 'Linda', 'Williams', 'linda.williams@example.com', 'ij');
-
--- -- Insert Students
--- INSERT INTO Students (UserID) VALUES
--- ('A001'),
--- ('A002');
-
--- -- Insert Faculties
--- INSERT INTO Faculties (UserID) VALUES
--- ('A003');
-
--- -- Insert TAs
--- INSERT INTO TAs (UserID) VALUES
--- ('A004');
-
--- -- Insert Admins
--- INSERT INTO Admins (UserID) VALUES
--- ('A005');
-
--- -- Insert ETextbooks
--- INSERT INTO ETextbooks (ETextbookID, CreatedBy, Title) VALUES
--- ('ET01', 'A005', 'Introduction to Programming'),
--- ('ET02', 'A005', 'Data Structures and Algorithms');
-
--- -- Insert Chapters
--- INSERT INTO Chapters (ChapterID, ETextbookID, Title, CreatedBy) VALUES
--- ('C01', 'ET01', 'Chapter 1: Basics of Programming', 'A003'),
--- ('C02', 'ET01', 'Chapter 2: Variables and Data Types', 'A003'),
--- ('C03', 'ET02', 'byAdmin', 'A005');
-
--- -- Insert Sections
--- INSERT INTO Sections (SectionID, ETextbookID, ChapterID, Title, CreatedBy) VALUES
--- ('S01', 'ET01', 'C01', 'Introduction', 'A003'),
--- ('S02', 'ET01', 'C02', 'Variables and Data Types', 'A003'),
--- ('S03', 'ET02', 'C03', 'Arrays and Linked Lists', 'A005');
-
--- -- Insert ContentBlocks
--- INSERT INTO ContentBlocks (BlockID, ETextbookID, ChapterID, SectionID, BlockType, Content, CreatedBy) VALUES
--- ('B01', 'ET01', 'C01', 'S01', 'text', 'This is the introduction to programming.', 'A003'),
--- ('B02', 'ET01', 'C02', 'S02', 'image', 'Image of variables and data types.', 'A003'),
--- ('B03', 'ET02', 'C03', 'S03', 'activity', 'Complete the exercise on arrays.', 'A005');
-
--- -- Insert Activities
--- INSERT INTO Activities (ActivityID, ETextbookID, ChapterID, SectionID, BlockID, CreatedBy) VALUES
--- ('A01', 'ET01', 'C01', 'S01', 'B01', 'A003'),
--- ('A02', 'ET01', 'C02', 'S02', 'B02', 'A003'),
--- ('A03', 'ET02', 'C03', 'S03', 'B03', 'A005');
-
--- -- Insert Questions
--- INSERT INTO Questions (QuestionID, ETextbookID, ChapterID, SectionID, BlockID, ActivityID, QuestionText, Option1, Option1Explanation, Option2, Option2Explanation, Option3, Option3Explanation, Option4, Option4Explanation, AnswerIdx, CreatedBy) VALUES
--- ('Q01', 'ET01', 'C01', 'S01', 'B01', 'A01', 'What is the first step in programming?', 'Define variables', 'Explanation for Option 1', 'Write code', 'Explanation for Option 2', 'Compile code', 'Explanation for Option 3', 'Execute code', 'Explanation for Option 4', 1, 'A003'),
--- ('Q02', 'ET01', 'C02', 'S02', 'B02', 'A02', 'What is a variable?', 'A container for data', 'Explanation for Option 1', 'A type of function', 'Explanation for Option 2', 'A block of code', 'Explanation for Option 3', 'A data type', 'Explanation for Option 4', 1, 'A003');
-
--- -- Insert Courses
--- INSERT INTO Courses (CourseID, Title, FacultyID, StartDate, EndDate, Type, ETextbookID) VALUES
--- ('C001', 'Intro to Programming', 'A003', '2024-01-15', '2026-05-15', 'Active', 'ET02'),
--- ('C002', 'Data Structures', 'A003', '2024-02-01', '2024-06-01', 'Evaluation', 'ET01');
-
--- -- Insert ActiveCourses
--- INSERT INTO ActiveCourses (CourseID, Token, Capacity) VALUES
--- ('C001', 'ABC1234', 30);
-
--- -- Insert CourseTAs
--- INSERT INTO CourseTAs (CourseID, TAID) VALUES
--- ('C001', 'A004');
-
--- -- Insert Enrollments
--- INSERT INTO Enrollments (StudentID, CourseID, WaitlistNumber, EnrollmentStatus) VALUES
--- ('A001', 'C001', 1, 'Approved');
-

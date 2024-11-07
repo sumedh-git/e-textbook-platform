@@ -37,7 +37,7 @@ function Login() {
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
             <Card style={{ width: '400px' }} className="p-4">
-                <h2 className="text-center mb-4">{role.charAt(0).toUpperCase() + role.slice(1)} Login</h2>
+                <h2 className="text-center mb-4">{role === 'student'? "Student Sign In" :role.charAt(0).toUpperCase() + role.slice(1) + " Login"}</h2>
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                     <Form.Group>

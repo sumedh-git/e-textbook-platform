@@ -4,7 +4,9 @@ from flask_cors import CORS
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
 from routes.faculty_routes import faculty_bp
+from routes.student_routes import student_bp
 from routes.ta_routes import ta_bp
+from routes.misc import misc_bp
 from config import get_db_connection
 import re
 
@@ -61,7 +63,11 @@ def execute_sql_script_proc(script_path):
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(faculty_bp, url_prefix='/api/faculty')
+app.register_blueprint(student_bp, url_prefix='/api/student')
 app.register_blueprint(ta_bp, url_prefix='/api/ta')
+app.register_blueprint(misc_bp, url_prefix='/api/misc')
+
+
 
 if __name__ == '__main__':
     execute_sql_script('../sql/init_db.sql')

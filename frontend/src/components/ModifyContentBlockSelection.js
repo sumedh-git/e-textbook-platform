@@ -28,7 +28,7 @@ function ModifyContentBlockSelection() {
             return;
         }
 
-        if (type === 'activity' || type === 'text' || type === 'image'){
+        if (type === 'activity' || type === 'text' || type === 'picture'){
             const exists = await checkContentBlockExists();
             if (!exists) {
                 setError("Content Block ID not found. Please enter a valid ID.");
@@ -56,7 +56,7 @@ function ModifyContentBlockSelection() {
             />
             <h3>Select Content Type</h3>
             <button onClick={() => handleOptionSelection('text')}>Add Text</button>
-            <button onClick={() => handleOptionSelection('image')}>Add Picture</button>
+            <button onClick={() => handleOptionSelection('picture')}>Add Picture</button>
             <button onClick={() => handleOptionSelection('activity')}>Add Activity</button>
             <br /><br />
             <button onClick={() => navigate(-1)}>Go Back</button>
