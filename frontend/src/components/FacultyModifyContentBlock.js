@@ -96,7 +96,7 @@ function FacultyModifyContentBlock() {
                     <ListGroup.Item action onClick={() => handleMenuAction("AddText", 'text')}>
                         3. Add Text
                     </ListGroup.Item>
-                    <ListGroup.Item action onClick={() => handleMenuAction("AddPicture", 'image')}>
+                    <ListGroup.Item action onClick={() => handleMenuAction("AddPicture", 'picture')}>
                         4. Add Picture
                     </ListGroup.Item>
                     <ListGroup.Item action onClick={() => handleMenuAction("HideActivity")}>
