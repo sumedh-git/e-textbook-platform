@@ -22,6 +22,10 @@ DROP PROCEDURE IF EXISTS ApproveEnrollment;
 
 /&/
 
+DROP TRIGGER IF EXISTS InsertDefaultScoresAfterEnrollmentUpdate;
+
+/&/
+
 CREATE PROCEDURE DeleteSectionByFacultyOrTA (
     IN in_userID VARCHAR(10),
     IN in_etextbookID VARCHAR(10),

@@ -7,6 +7,7 @@ function StudentViewParticipationActivityPoints() {
     const url = `http://localhost:5000/api/student/get-activity-points?student-user-id=${studentUserID}`
   
     useEffect(() => {
+      console.log('Calling')
       fetch(url)
         .then(response => response.json())
         .then(data => setPoints(data))
@@ -14,8 +15,9 @@ function StudentViewParticipationActivityPoints() {
     }, [url]);
   
     if (error) return <p>{error}</p>;
-  
+
     const renderHierarchy = (data) => {
+      if (!data) return <p>Loading</p>;
       return (
         <div>
         <ul>

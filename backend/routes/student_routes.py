@@ -244,11 +244,15 @@ def get_activity_points():
     
     if not student_user_id:
         return jsonify({"error": "Missing student's user id."}), 400
-    results = get_student_activity_points(student_user_id)
+    results, message = get_student_activity_points(student_user_id)
     
+    if results is None:
+        return jsonify({"error": f"Failed to fetch activity points. {message}"}), 500
     print("Fetched results")
+    
     hierarchy = {}
     for row in results:
+        print(row)
         etextbook_id, chapter_id, section_id, block_id, activity_id, question_id, points = row
         
         if etextbook_id not in hierarchy:
