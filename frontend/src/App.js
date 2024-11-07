@@ -49,6 +49,13 @@ import FacultyHideContentBlock from "./components/FacultyHideContentBlock";
 import FacultyDeleteContentBlock from "./components/FacultyDeleteContentBlock";
 import FacultyHideActivity from "./components/FacultyHideActivity";
 import FacultyDeleteActivity from "./components/FacultyDeleteActivity";
+import TAModifyChapter from "./components/TAModifyChapter";
+import TADeleteChapter from "./components/TADeleteChapter";
+import TADeleteSection from "./components/TADeleteSection";
+import TADeleteContentBlock from "./components/TADeleteContentBlock";
+import TADeleteActivity from "./components/TADeleteActivity";
+import TAModifySection from "./components/TAModifySection";
+import TAModifyContentBlock from "./components/TAModifyContentBlock";
 import FacultyViewWorklist from "./components/FacultyViewWorklist";
 import FacultyApproveEnrollment from "./components/FacultyApproveEnrollment";
 import ViewNotifications from "./components/ViewNotifications";
@@ -96,6 +103,7 @@ function App() {
 
         <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
         <Route path="/change-password" element={<ChangePassword />} />
+
         <Route path="/student/login" element={<StudentLogin />} />
         <Route path="/student/enroll" element={<StudentEnroll />} />
         <Route path="/dashboard/student" element={<StudentDashboard />} />
@@ -105,6 +113,7 @@ function App() {
           path="/student/view-participation-activity-points"
           element={<StudentViewParticipationActivityPoints />}
         />
+
         <Route
           path="/faculty/active-course"
           element={<FacultyActiveCourse />}
@@ -157,6 +166,7 @@ function App() {
           element={<FacultyViewStudents />}
         />
         <Route path="/faculty/add-ta" element={<FacultyAddTa />} />
+
         <Route
           path="/faculty/view-worklist"
           element={<FacultyViewWorklist />}
@@ -170,6 +180,20 @@ function App() {
         <Route path="/ta/view-courses" element={<TAViewCourses />} />
         <Route path="/ta/active-course" element={<TAActiveCourse />} />
         <Route path="/ta/view-students" element={<TAViewStudents />} />
+
+        <Route path="/ta/modify-chapter" element={<TAModifyChapter />} />
+        <Route path="/ta/delete-chapter" element={<TADeleteChapter />} />
+        <Route path="/ta/delete-section" element={<TADeleteSection />} />
+        <Route
+          path="/ta/delete-content-block"
+          element={<TADeleteContentBlock />}
+        />
+        <Route path="/ta/delete-activity" element={<TADeleteActivity />} />
+        <Route path="/ta/modify-section" element={<TAModifySection />} />
+        <Route
+          path="/ta/modify-content-block"
+          element={<TAModifyContentBlock />}
+
 
         <Route
           path="/student/view-notifications"
