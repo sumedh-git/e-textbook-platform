@@ -193,7 +193,7 @@ function App() {
         <Route
           path="/ta/modify-content-block"
           element={<TAModifyContentBlock />}
-
+        />
 
         <Route
           path="/student/view-notifications"
